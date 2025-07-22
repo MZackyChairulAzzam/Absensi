@@ -466,7 +466,7 @@
     <header>
         <div class="container header-container">
             <div class="logo">
-                <img src="https://placehold.co/40x40" alt="Logo E-Skul - Ikona buku dengan simbol tanda centang berwarna putih di atas latar belakang biru" />
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/cf7dff8a-b51e-4e45-80c6-068fb96d82d8.png" alt="Logo E-Skul - Ikona buku dengan simbol tanda centang berwarna putih di atas latar belakang biru" />
                 <h1>E-Skul</h1>
             </div>
             <nav>
@@ -670,13 +670,14 @@
 
     <script>
         // Firebase Configuration
+        // Use your actual Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyCP2CoMPbYojeh4fFDim2l1KAlduQKa5KU",
-            authDomain: "absensi-6aeea.firebaseapp.com",
+            authDomain: "absensi-6aeea.firebaseapp.com", 
             projectId: "absensi-6aeea",
             storageBucket: "absensi-6aeea.firebasestorage.app",
             messagingSenderId: "519667816686",
-            appId: "1:519667816686:web:d02baae365ad00a40dbbff",
+            appId: "1:519667816686:web:d02baae365ad00a40dbbff"
         };
 
         // Initialize Firebase services
@@ -691,8 +692,6 @@
         });
 
         // Collection references
-
-        // COMODITY STORES ALL ATTENDANCE RECORDS
         const attendanceCollection = db.collection("attendance");
         
         // DOM Elements
@@ -891,6 +890,16 @@
         }
 
         async function submitAttendance() {
+            if (!currentUser) {
+                showToast('Silakan login terlebih dahulu');
+                showLoginModal();
+                return;
+            }
+            if (!currentUser) {
+                showToast('Silakan login terlebih dahulu');
+                showLoginModal();
+                return;
+            }
             const name = document.getElementById('studentName').value.trim();
             const studentId = document.getElementById('studentId').value.trim();
             const extracurricular = document.getElementById('extracurricular').value;
@@ -905,7 +914,7 @@
             }
 
             showLoader();
-             try {
+            try {
                 // First check if attendance already exists for this student today
                 const existingQuery = await attendanceCollection
                     .where('studentId', '==', studentId)
@@ -936,9 +945,11 @@
             } catch (error) {
                 console.error("Error saving attendance: ", error);
                 if (error.code === 'permission-denied') {
-                    showToast('Anda tidak memiliki izin untuk menyimpan absensi');
+                    showToast('Error: Tidak memiliki izin. Periksa Firestore rules');
+                } else if (error.code === 'unavailable') {
+                    showToast('Error: Koneksi terputus. Coba lagi');
                 } else {
-                    showToast('Gagal menyimpan absensi: ' + error.message); 
+                    showToast(`Gagal menyimpan: ${error.message}`); 
                 }
             } finally {
                 hideLoader();

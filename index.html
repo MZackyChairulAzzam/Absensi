@@ -6,40 +6,6 @@
     <title>E-Skul | Sistem Absensi Digital</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDK v9 (modular) -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
-
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCP2CoMPbYojeh4fFDim2l1KAlduQKa5KU",
-            authDomain: "absensi-6aeea.firebaseapp.com",
-            projectId: "absensi-6aeea",
-            storageBucket: "absensi-6aeea.firebasestorage.app",
-            messagingSenderId: "519667816686",
-            appId: "1:519667816686:web:d02baae365ad00a40dbbff",
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // Make Firebase functions globally available
-        window.db = db;
-        window.collection = collection;
-        window.addDoc = addDoc;
-        window.getDocs = getDocs;
-        window.deleteDoc = deleteDoc;
-        window.doc = doc;
-        window.query = query;
-        window.where = where;
-        window.orderBy = orderBy;
-        window.limit = limit;
-        window.serverTimestamp = serverTimestamp;
-
-        console.log("Firebase initialized successfully");
-    </script>
     
     <style>
         :root {
@@ -495,7 +461,7 @@
     <header>
         <div class="container header-container">
             <div class="logo">
-                <img src="https://placehold.co/40x40" alt="Logo E-Skul - Ikona buku dengan simbol tanda centang berwarna putih di atas latar belakang biru" />
+                <img src="https://placehold.co/40x40" alt="Logo E-Skul" />
                 <h1>E-Skul</h1>
             </div>
             <nav>
@@ -574,6 +540,8 @@
                             <option value="">Pilih Ekstrakurikuler</option>
                             <option value="Voli">Voli</option>
                             <option value="English Club">English Club</option>
+                            <option value="Basket">Basket</option>
+                            <option value="Pramuka">Pramuka</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -616,7 +584,7 @@
                             </tr>
                         </thead>
                         <tbody id="attendanceList">
-                            <!-- Data will be dynamically inserted here -->
+                            <!-- Data akan dimuat secara dinamis di sini -->
                         </tbody>
                     </table>
                 </div>
@@ -632,313 +600,343 @@
         <div class="spinner"></div>
     </div>
 
-    <script>
-        // Wait for Firebase to be loaded
-        function initializeApp() {
-            // DOM Elements
-            const attendanceForm = document.getElementById('attendanceForm');
-            const refreshAttendanceBtn = document.getElementById('refreshAttendance');
-            const attendanceBtn = document.getElementById('attendanceBtn');
-            const toast = document.getElementById('toast');
-            const loader = document.getElementById('loader');
-            const debugPanel = document.getElementById('debugPanel');
-            const debugContent = document.getElementById('debugContent');
-            const toggleDebugBtn = document.getElementById('toggleDebug');
-            
-            // Statistics elements
-            const totalStudentsEl = document.getElementById('totalStudents');
-            const todayAttendanceEl = document.getElementById('todayAttendance');
-            const attendanceRateEl = document.getElementById('attendanceRate');
-            const activeSessionEl = document.getElementById('activeSession');
+    <!-- Firebase SDK v9 (modular) -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 
-            // Debug functions
-            function updateDebug(message) {
-                console.log(message);
-                debugContent.innerHTML += '<br>' + new Date().toLocaleTimeString() + ': ' + message;
-            }
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCP2CoMPbYojeh4fFDim2l1KAlduQKa5KU",
+            authDomain: "absensi-6aeea.firebaseapp.com",
+            projectId: "absensi-6aeea",
+            storageBucket: "absensi-6aeea.appspot.com",
+            messagingSenderId: "519667816686",
+            appId: "1:519667816686:web:d02baae365ad00a40dbbff",
+        };
 
-            function checkFirebaseConnection() {
-                if (window.db) {
-                    updateDebug('✅ Firebase connected successfully');
-                    return true;
-                } else {
-                    updateDebug('❌ Firebase not connected');
-                    return false;
-                }
-            }
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-            // Date Setup
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('attendanceDate').value = today;
+        // Make Firebase functions globally available
+        window.db = db;
+        window.collection = collection;
+        window.addDoc = addDoc;
+        window.getDocs = getDocs;
+        window.deleteDoc = deleteDoc;
+        window.doc = doc;
+        window.query = query;
+        window.where = where;
+        window.orderBy = orderBy;
+        window.limit = limit;
+        window.serverTimestamp = serverTimestamp;
 
-            // Event Listeners
-            toggleDebugBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                debugPanel.classList.toggle('show');
-            });
+        console.log("Firebase initialized successfully");
+        
+        // Set today's date as default
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('attendanceDate').value = today;
 
-            attendanceForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                await submitAttendance();
-            });
+        // DOM Elements
+        const attendanceForm = document.getElementById('attendanceForm');
+        const refreshAttendanceBtn = document.getElementById('refreshAttendance');
+        const attendanceBtn = document.getElementById('attendanceBtn');
+        const toast = document.getElementById('toast');
+        const loader = document.getElementById('loader');
+        const debugPanel = document.getElementById('debugPanel');
+        const debugContent = document.getElementById('debugContent');
+        const toggleDebugBtn = document.getElementById('toggleDebug');
+        
+        // Statistics elements
+        const totalStudentsEl = document.getElementById('totalStudents');
+        const todayAttendanceEl = document.getElementById('todayAttendance');
+        const attendanceRateEl = document.getElementById('attendanceRate');
+        const activeSessionEl = document.getElementById('activeSession');
 
-            refreshAttendanceBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                loadAttendance();
-            });
-
-            attendanceBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                document.getElementById('attendanceFormCard').scrollIntoView({ behavior: 'smooth' });
-            });
-
-            // Utility Functions
-            function showLoader() {
-                loader.style.display = 'flex';
-            }
-
-            function hideLoader() {
-                loader.style.display = 'none';
-            }
-
-            function showToast(message, type = 'info', duration = 3000) {
-                toast.textContent = message;
-                toast.className = 'toast show';
-                if (type === 'error') {
-                    toast.classList.add('error');
-                } else if (type === 'success') {
-                    toast.classList.add('success');
-                }
-                
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                    toast.className = 'toast';
-                }, duration);
-            }
-
-            function formatDate(dateString) {
-                const options = { year: 'numeric', month: 'long', day: 'numeric' };
-                return new Date(dateString).toLocaleDateString('id-ID', options);
-            }
-
-            // Main Functions
-            async function submitAttendance() {
-                updateDebug('🔄 Starting attendance submission...');
-                
-                if (!checkFirebaseConnection()) {
-                    showToast('Firebase tidak terhubung. Silakan refresh halaman.', 'error');
-                    return;
-                }
-
-                const name = document.getElementById('studentName').value.trim();
-                const extracurricular = document.getElementById('extracurricular').value;
-                const status = document.getElementById('attendanceStatus').value;
-                const date = document.getElementById('attendanceDate').value;
-                const notes = document.getElementById('notes').value.trim();
-
-                updateDebug(`📝 Form data: ${name}, ${extracurricular}, ${status}, ${date}`);
-
-                // Validation
-                if (!name || !extracurricular || !status || !date) {
-                    showToast('Harap lengkapi semua field yang wajib diisi', 'error');
-                    updateDebug('❌ Validation failed: missing required fields');
-                    return;
-                }
-
-                showLoader();
-                try {
-                    updateDebug('🔍 Checking for existing attendance...');
-                    
-                    // Check for existing attendance
-                    const attendanceRef = window.collection(window.db, 'attendance');
-                    const q = window.query(
-                        attendanceRef,
-                        window.where('name', '==', name),
-                        window.where('date', '==', date),
-                        window.where('extracurricular', '==', extracurricular)
-                    );
-                    
-                    const existingSnapshot = await window.getDocs(q);
-                    
-                    if (!existingSnapshot.empty) {
-                        showToast('Absensi untuk peserta ini di ekstrakurikuler yang sama hari ini sudah tercatat', 'error');
-                        updateDebug('❌ Duplicate attendance found');
-                        return;
-                    }
-
-                    updateDebug('💾 Saving to Firestore...');
-                    
-                    // Add new attendance record
-                    const docRef = await window.addDoc(attendanceRef, {
-                        name: name,
-                        extracurricular: extracurricular,
-                        status: status,
-                        date: date,
-                        notes: notes,
-                        recordedAt: window.serverTimestamp(),
-                        updatedAt: window.serverTimestamp()
-                    });
-                    
-                    updateDebug(`✅ Document saved with ID: ${docRef.id}`);
-                    showToast('Absensi berhasil disimpan!', 'success');
-                    
-                    // Reset form
-                    attendanceForm.reset();
-                    document.getElementById('attendanceDate').value = today;
-                    
-                    // Reload data
-                    await loadDashboardData();
-                    
-                } catch (error) {
-                    console.error("Error saving attendance: ", error);
-                    updateDebug(`❌ Error saving: ${error.message}`);
-                    showToast(`Gagal menyimpan absensi: ${error.message}`, 'error');
-                } finally {
-                    hideLoader();
-                }
-            }
-
-            async function loadDashboardData() {
-                if (!checkFirebaseConnection()) {
-                    return;
-                }
-
-                showLoader();
-                try {
-                    updateDebug('📊 Loading dashboard data...');
-                    
-                    // Get today's attendance count
-                    const today = new Date().toISOString().split('T')[0];
-                    const attendanceRef = window.collection(window.db, 'attendance');
-                    const todayQuery = window.query(
-                        attendanceRef,
-                        window.where('date', '==', today)
-                    );
-                    
-                    const todaySnapshot = await window.getDocs(todayQuery);
-                    todayAttendanceEl.textContent = todaySnapshot.size;
-                    
-                    updateDebug(`📈 Today's attendance: ${todaySnapshot.size}`);
-                    
-                    // Set placeholder values
-                    totalStudentsEl.textContent = "150";
-                    attendanceRateEl.textContent = "90%";
-                    activeSessionEl.textContent = "2";
-                    
-                    // Load recent attendance
-                    await loadAttendance();
-                    
-                } catch (error) {
-                    console.error("Error loading dashboard: ", error);
-                    updateDebug(`❌ Error loading dashboard: ${error.message}`);
-                    showToast(`Gagal memuat data: ${error.message}`, 'error');
-                } finally {
-                    hideLoader();
-                }
-            }
-
-            async function loadAttendance() {
-                if (!checkFirebaseConnection()) {
-                    return;
-                }
-
-                const attendanceList = document.getElementById('attendanceList');
-                attendanceList.innerHTML = '';
-                
-                try {
-                    updateDebug('📋 Loading attendance list...');
-                    
-                    const attendanceRef = window.collection(window.db, 'attendance');
-                    const q = window.query(
-                        attendanceRef,
-                        window.orderBy('recordedAt', 'desc'),
-                        window.limit(10)
-                    );
-                    
-                    const querySnapshot = await window.getDocs(q);
-                    
-                    if (querySnapshot.empty) {
-                        attendanceList.innerHTML = '<tr><td colspan="5" style="text-align: center;">Belum ada data absensi</td></tr>';
-                        updateDebug('📋 No attendance records found');
-                        return;
-                    }
-                    
-                    updateDebug(`📋 Loaded ${querySnapshot.size} attendance records`);
-                    
-                    querySnapshot.forEach(doc => {
-                        const data = doc.data();
-                        const row = document.createElement('tr');
-                        
-                        let statusBadge = '';
-                        if (data.status === 'Hadir') {
-                            statusBadge = '<span class="badge badge-success">Hadir</span>';
-                        } else if (data.status === 'Izin') {
-                            statusBadge = '<span class="badge badge-warning">Izin</span>';
-                        } else if (data.status === 'Sakit') {
-                            statusBadge = '<span class="badge badge-warning">Sakit</span>';
-                        } else {
-                            statusBadge = '<span class="badge badge-danger">Alpa</span>';
-                        }
-                        
-                        row.innerHTML = `
-                            <td>${data.name}</td>
-                            <td>${data.extracurricular}</td>
-                            <td>${statusBadge}</td>
-                            <td>${formatDate(data.date)}</td>
-                            <td>
-                                <button class="btn" style="padding: 5px 10px; font-size: 0.8rem;" onclick="editAttendance('${doc.id}')">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn" style="padding: 5px 10px; font-size: 0.8rem;" onclick="deleteAttendance('${doc.id}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        `;
-                        
-                        attendanceList.appendChild(row);
-                    });
-                    
-                } catch (error) {
-                    console.error("Error loading attendance: ", error);
-                    updateDebug(`❌ Error loading attendance: ${error.message}`);
-                    showToast(`Gagal memuat daftar absensi: ${error.message}`, 'error');
-                }
-            }
-
-            // Global functions for buttons
-            window.editAttendance = async function(id) {
-                showToast('Fitur edit akan diimplementasikan', 'info', 2000);
-            };
-
-            window.deleteAttendance = async function(id) {
-                if (confirm('Apakah Anda yakin ingin menghapus absensi ini?')) {
-                    if (!checkFirebaseConnection()) {
-                        showToast('Firebase tidak terhubung', 'error');
-                        return;
-                    }
-
-                    showLoader();
-                    try {
-                        updateDebug(`🗑️ Deleting document: ${id}`);
-                        await window.deleteDoc(window.doc(window.db, 'attendance', id));
-                        updateDebug('✅ Document deleted successfully');
-                        showToast('Absensi berhasil dihapus', 'success');
-                        loadAttendance();
-                    } catch (error) {
-                        console.error("Error deleting: ", error);
-                        updateDebug(`❌ Error deleting: ${error.message}`);
-                        showToast(`Gagal menghapus absensi: ${error.message}`, 'error');
-                    } finally {
-                        hideLoader();
-                    }
-                }
-            };
-
-            // Initialize
-            updateDebug('🚀 App initialized');
-            checkFirebaseConnection();
-            loadDashboardData();
+        // Debug functions
+        function updateDebug(message) {
+            console.log(message);
+            debugContent.innerHTML += '<br>' + new Date().toLocaleTimeString() + ': ' + message;
         }
+
+        function checkFirebaseConnection() {
+            if (window.db) {
+                updateDebug('✅ Firebase connected successfully');
+                return true;
+            } else {
+                updateDebug('❌ Firebase not connected');
+                return false;
+            }
+        }
+
+        // Event Listeners
+        toggleDebugBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            debugPanel.classList.toggle('show');
+        });
+
+        attendanceForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await submitAttendance();
+        });
+
+        refreshAttendanceBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            loadAttendance();
+        });
+
+        attendanceBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('attendanceFormCard').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Utility Functions
+        function showLoader() {
+            loader.style.display = 'flex';
+        }
+
+        function hideLoader() {
+            loader.style.display = 'none';
+        }
+
+        function showToast(message, type = 'info', duration = 3000) {
+            toast.textContent = message;
+            toast.className = 'toast show';
+            if (type === 'error') {
+                toast.classList.add('error');
+            } else if (type === 'success') {
+                toast.classList.add('success');
+            }
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.className = 'toast';
+            }, duration);
+        }
+
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('id-ID', options);
+        }
+
+        // Main Functions
+        async function submitAttendance() {
+            updateDebug('🔄 Starting attendance submission...');
+            
+            if (!checkFirebaseConnection()) {
+                showToast('Firebase tidak terhubung. Silakan refresh halaman.', 'error');
+                return;
+            }
+
+            const name = document.getElementById('studentName').value.trim();
+            const extracurricular = document.getElementById('extracurricular').value;
+            const status = document.getElementById('attendanceStatus').value;
+            const date = document.getElementById('attendanceDate').value;
+            const notes = document.getElementById('notes').value.trim();
+
+            updateDebug(`📝 Form data: ${name}, ${extracurricular}, ${status}, ${date}`);
+
+            // Validation
+            if (!name || !extracurricular || !status || !date) {
+                showToast('Harap lengkapi semua field yang wajib diisi', 'error');
+                updateDebug('❌ Validation failed: missing required fields');
+                return;
+            }
+
+            showLoader();
+            try {
+                updateDebug('🔍 Checking for existing attendance...');
+                
+                // Check for existing attendance
+                const attendanceRef = window.collection(window.db, 'attendance');
+                const q = window.query(
+                    attendanceRef,
+                    window.where('name', '==', name),
+                    window.where('date', '==', date),
+                    window.where('extracurricular', '==', extracurricular)
+                );
+                
+                const existingSnapshot = await window.getDocs(q);
+                
+                if (!existingSnapshot.empty) {
+                    showToast('Absensi untuk peserta ini di ekstrakurikuler yang sama hari ini sudah tercatat', 'error');
+                    updateDebug('❌ Duplicate attendance found');
+                    return;
+                }
+
+                updateDebug('💾 Saving to Firestore...');
+                
+                // Add new attendance record
+                const docRef = await window.addDoc(attendanceRef, {
+                    name: name,
+                    extracurricular: extracurricular,
+                    status: status,
+                    date: date,
+                    notes: notes || 'Tidak ada catatan',
+                    recordedAt: window.serverTimestamp(),
+                    updatedAt: window.serverTimestamp()
+                });
+                
+                updateDebug(`✅ Document saved with ID: ${docRef.id}`);
+                showToast('Absensi berhasil disimpan!', 'success');
+                
+                // Reset form
+                attendanceForm.reset();
+                document.getElementById('attendanceDate').value = today;
+                
+                // Reload data
+                await loadDashboardData();
+                
+            } catch (error) {
+                console.error("Error saving attendance: ", error);
+                updateDebug(`❌ Error saving: ${error.message}`);
+                showToast(`Gagal menyimpan absensi: ${error.message}`, 'error');
+            } finally {
+                hideLoader();
+            }
+        }
+
+        async function loadDashboardData() {
+            if (!checkFirebaseConnection()) {
+                return;
+            }
+
+            showLoader();
+            try {
+                updateDebug('📊 Loading dashboard data...');
+                
+                // Get today's attendance count
+                const today = new Date().toISOString().split('T')[0];
+                const attendanceRef = window.collection(window.db, 'attendance');
+                const todayQuery = window.query(
+                    attendanceRef,
+                    window.where('date', '==', today)
+                );
+                
+                const todaySnapshot = await window.getDocs(todayQuery);
+                todayAttendanceEl.textContent = todaySnapshot.size;
+                
+                updateDebug(`📈 Today's attendance: ${todaySnapshot.size}`);
+                
+                // Set placeholder values
+                totalStudentsEl.textContent = "150";
+                attendanceRateEl.textContent = "90%";
+                activeSessionEl.textContent = "2";
+                
+                // Load recent attendance
+                await loadAttendance();
+                
+            } catch (error) {
+                console.error("Error loading dashboard: ", error);
+                updateDebug(`❌ Error loading dashboard: ${error.message}`);
+                showToast(`Gagal memuat data: ${error.message}`, 'error');
+            } finally {
+                hideLoader();
+            }
+        }
+
+        async function loadAttendance() {
+            if (!checkFirebaseConnection()) {
+                return;
+            }
+
+            const attendanceList = document.getElementById('attendanceList');
+            attendanceList.innerHTML = '';
+            
+            try {
+                updateDebug('📋 Loading attendance list...');
+                
+                const attendanceRef = window.collection(window.db, 'attendance');
+                const q = window.query(
+                    attendanceRef,
+                    window.orderBy('recordedAt', 'desc'),
+                    window.limit(10)
+                );
+                
+                const querySnapshot = await window.getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    attendanceList.innerHTML = '<tr><td colspan="5" style="text-align: center;">Belum ada data absensi</td></tr>';
+                    updateDebug('📋 No attendance records found');
+                    return;
+                }
+                
+                updateDebug(`📋 Loaded ${querySnapshot.size} attendance records`);
+                
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    const row = document.createElement('tr');
+                    
+                    let statusBadge = '';
+                    if (data.status === 'Hadir') {
+                        statusBadge = '<span class="badge badge-success">Hadir</span>';
+                    } else if (data.status === 'Izin') {
+                        statusBadge = '<span class="badge badge-warning">Izin</span>';
+                    } else if (data.status === 'Sakit') {
+                        statusBadge = '<span class="badge badge-warning">Sakit</span>';
+                    } else {
+                        statusBadge = '<span class="badge badge-danger">Alpa</span>';
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${data.name}</td>
+                        <td>${data.extracurricular}</td>
+                        <td>${statusBadge}</td>
+                        <td>${formatDate(data.date)}</td>
+                        <td>
+                            <button class="btn" style="padding: 5px 10px; font-size: 0.8rem;" onclick="editAttendance('${doc.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn" style="padding: 5px 10px; font-size: 0.8rem;" onclick="deleteAttendance('${doc.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    
+                    attendanceList.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error("Error loading attendance: ", error);
+                updateDebug(`❌ Error loading attendance: ${error.message}`);
+                showToast(`Gagal memuat daftar absensi: ${error.message}`, 'error');
+            }
+        }
+
+        // Global functions for buttons
+        window.editAttendance = async function(id) {
+            showToast('Fitur edit akan diimplementasikan', 'info', 2000);
+        };
+
+        window.deleteAttendance = async function(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus absensi ini?')) {
+                if (!checkFirebaseConnection()) {
+                    showToast('Firebase tidak terhubung', 'error');
+                    return;
+                }
+
+                showLoader();
+                try {
+                    updateDebug(`🗑️ Deleting document: ${id}`);
+                    await window.deleteDoc(window.doc(window.db, 'attendance', id));
+                    updateDebug('✅ Document deleted successfully');
+                    showToast('Absensi berhasil dihapus', 'success');
+                    loadAttendance();
+                } catch (error) {
+                    console.error("Error deleting: ", error);
+                    updateDebug(`❌ Error deleting: ${error.message}`);
+                    showToast(`Gagal menghapus absensi: ${error.message}`, 'error');
+                } finally {
+                    hideLoader();
+                }
+            }
+        };
+
+        // Initialize
+        updateDebug('🚀 App initialized');
+        checkFirebaseConnection();
+        loadDashboardData();
     </script>
 </body>
 </html>

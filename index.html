@@ -679,11 +679,18 @@
             appId: "1:519667816686:web:d02baae365ad00a40dbbff",
         };
 
-        // Initialize Firebase
+        // Initialize Firebase services
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
         const storage = firebase.storage();
+        
+        // Enable offline persistence
+        db.enablePersistence().catch((err) => {
+            console.error("Firebase persistence error: ", err);
+        });
+
+        // Collection references
 
         // COMODITY STORES ALL ATTENDANCE RECORDS
         const attendanceCollection = db.collection("attendance");
@@ -805,14 +812,18 @@
 
         // Main Functions
         async function checkAuthState() {
-            auth.onAuthStateChanged((user) => {
-                if (user) {
-                    currentUser = user;
-                    hideLoginModal();
-                    loadDashboardData();
-                } else {
-                    showLoginModal();
-                }
+            return new Promise((resolve) => {
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        currentUser = user;
+                        hideLoginModal();
+                        loadDashboardData();
+                        resolve(true);
+                    } else {
+                        showLoginModal();
+                        resolve(false);
+                    }
+                });
             });
         }
 
@@ -880,29 +891,42 @@
         }
 
         async function submitAttendance() {
-            const name = document.getElementById('studentName').value;
-            const studentId = document.getElementById('studentId').value;
+            const name = document.getElementById('studentName').value.trim();
+            const studentId = document.getElementById('studentId').value.trim();
             const extracurricular = document.getElementById('extracurricular').value;
             const status = document.getElementById('attendanceStatus').value;
             const date = document.getElementById('attendanceDate').value;
-            const notes = document.getElementById('notes').value;
+            const notes = document.getElementById('notes').value.trim();
 
+            // Validation
             if (!name || !studentId || !extracurricular || !status || !date) {
                 showToast('Harap lengkapi semua field yang wajib diisi');
                 return;
             }
 
             showLoader();
-            try {
+             try {
+                // First check if attendance already exists for this student today
+                const existingQuery = await attendanceCollection
+                    .where('studentId', '==', studentId)
+                    .where('date', '==', date)
+                    .get();
+                
+                if (!existingQuery.empty) {
+                    showToast('Absensi untuk siswa ini hari ini sudah tercatat');
+                    return;
+                }
+
                 await attendanceCollection.add({
                     name,
                     studentId,
                     extracurricular,
-                    status,
+                    status, 
                     date,
                     notes,
                     recordedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    recordedBy: currentUser.uid
+                    recordedBy: currentUser.uid,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
                 showToast('Absensi berhasil disimpan');
@@ -910,9 +934,15 @@
                 document.getElementById('attendanceDate').value = today;
                 loadDashboardData();
             } catch (error) {
-                showToast('Gagal menyimpan absensi: ' + error.message);
+                console.error("Error saving attendance: ", error);
+                if (error.code === 'permission-denied') {
+                    showToast('Anda tidak memiliki izin untuk menyimpan absensi');
+                } else {
+                    showToast('Gagal menyimpan absensi: ' + error.message); 
+                }
             } finally {
                 hideLoader();
+                loadAttendance(); // Refresh the list
             }
         }
 

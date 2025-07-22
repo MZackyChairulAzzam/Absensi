@@ -1,11 +1,46 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Absen Extrakulikuler Volly Ball</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Skul | Sistem Absensi Digital</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK v9 (modular) -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCP2CoMPbYojeh4fFDim2l1KAlduQKa5KU",
+            authDomain: "absensi-6aeea.firebaseapp.com",
+            projectId: "absensi-6aeea",
+            storageBucket: "absensi-6aeea.firebasestorage.app",
+            messagingSenderId: "519667816686",
+            appId: "1:519667816686:web:d02baae365ad00a40dbbff",
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Make Firebase functions globally available
+        window.db = db;
+        window.collection = collection;
+        window.addDoc = addDoc;
+        window.getDocs = getDocs;
+        window.deleteDoc = deleteDoc;
+        window.doc = doc;
+        window.query = query;
+        window.where = where;
+        window.orderBy = orderBy;
+        window.limit = limit;
+        window.serverTimestamp = serverTimestamp;
+
+        console.log("Firebase initialized successfully");
+    </script>
+    
     <style>
         :root {
             --primary-color: #4361ee;
@@ -36,11 +71,12 @@
             padding: 20px;
         }
 
+        /* Header Styles */
         header {
             background-color: var(--primary-color);
             color: white;
             padding: 15px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .header-container {
@@ -82,6 +118,7 @@
             opacity: 0.8;
         }
 
+        /* Hero Section */
         .hero {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
@@ -125,6 +162,7 @@
             color: white;
         }
 
+        /* Main Content */
         .dashboard {
             display: grid;
             grid-template-columns: 250px 1fr;
@@ -132,11 +170,12 @@
             margin-top: 30px;
         }
 
+        /* Sidebar */
         .sidebar {
             background-color: white;
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
         .sidebar-menu {
@@ -168,11 +207,12 @@
             text-align: center;
         }
 
+        /* Main Content Area */
         .main-content {
             background-color: white;
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
         .card {
@@ -180,7 +220,7 @@
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
         .card-header {
@@ -195,6 +235,7 @@
             font-weight: 600;
         }
 
+        /* Attendance Form */
         .attendance-form {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -240,46 +281,55 @@
             background-color: var(--secondary-color);
         }
 
+        /* Attendance List */
         .table-responsive {
             overflow-x: auto;
         }
 
-        /* Pemisahan dan penegasan daftar absensi */
-        #attendanceTable {
-            border-collapse: separate !important;
-            border-spacing: 0 10px !important;
+        table {
             width: 100%;
+            border-collapse: collapse;
         }
 
-        #attendanceTable tbody tr {
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
         }
 
-        #attendanceTable th {
-            background-color: var(--light-color);
-            border-bottom: 2px solid var(--primary-color);
-            padding: 12px 15px !important;
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
         }
 
-        #attendanceTable td, #attendanceTable th {
-            padding: 15px 20px !important;
-            vertical-align: middle;
+        tr:hover {
+            background-color: #f8f9fa;
         }
 
-        /* Zebra stripes */
-        #attendanceTable tbody tr:nth-child(odd) {
-            background-color: #f9f9f9;
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
         }
 
-        /* Efek hover lebih jelas */
-        #attendanceTable tbody tr:hover {
-            background-color: #e0eaff;
-            box-shadow: 0 2px 8px rgba(67, 97, 238, 0.3);
+        .badge-success {
+            background-color: #d4edda;
+            color: #155724;
         }
 
-        /* statistik dan lainnya tetap sama */
+        .badge-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        /* Statistics Cards */
         .stats-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -291,14 +341,14 @@
             background-color: white;
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             text-align: center;
             transition: all 0.3s ease;
         }
 
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
         .stat-card i {
@@ -318,6 +368,7 @@
             color: var(--primary-color);
         }
 
+        /* Responsive Design */
         @media (max-width: 992px) {
             .dashboard {
                 grid-template-columns: 1fr;
@@ -357,6 +408,7 @@
             }
         }
 
+        /* Toast Notification */
         .toast {
             position: fixed;
             bottom: 20px;
@@ -365,7 +417,7 @@
             color: white;
             padding: 15px 20px;
             border-radius: 5px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
             transform: translateY(100px);
             opacity: 0;
             transition: all 0.3s ease;
@@ -385,19 +437,23 @@
             background-color: var(--success-color);
         }
 
+        /* Loading Spinner */
         .loader {
             display: none;
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-color: rgba(255,255,255,0.8);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
             z-index: 1000;
             justify-content: center;
             align-items: center;
         }
 
         .spinner {
-            width: 50px; height: 50px;
+            width: 50px;
+            height: 50px;
             border: 5px solid #f3f3f3;
             border-top: 5px solid var(--primary-color);
             border-radius: 50%;
@@ -405,73 +461,42 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg);}
-            100% { transform: rotate(360deg);}
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
+        /* Debug Panel */
         .debug-panel {
             position: fixed;
             top: 10px;
             right: 10px;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0, 0, 0, 0.8);
             color: white;
             padding: 10px;
             border-radius: 5px;
             font-size: 12px;
             max-width: 300px;
-            max-height: 200px;
-            overflow-y: auto;
             z-index: 1001;
             display: none;
         }
+
         .debug-panel.show {
             display: block;
         }
-/* Pemisahan dan penegasan daftar absensi */
-#attendanceTable {
-    border-collapse: separate !important;
-    border-spacing: 0 10px !important;
-    width: 100%;
-}
-
-#attendanceTable tbody tr {
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-}
-
-#attendanceTable th {
-    background-color: var(--light-color);
-    border-bottom: 2px solid var(--primary-color);
-    padding: 12px 15px !important;
-}
-
-#attendanceTable td, #attendanceTable th {
-    padding: 15px 20px !important;
-    vertical-align: middle;
-}
-
-#attendanceTable tbody tr:nth-child(odd) {
-    background-color: #f9f9f9;
-}
-
-#attendanceTable tbody tr:hover {
-    background-color: #e0eaff;
-    box-shadow: 0 2px 8px rgba(67, 97, 238, 0.3);
-}
-
     </style>
 </head>
 <body>
+    <!-- Debug Panel -->
     <div class="debug-panel" id="debugPanel">
         <div id="debugContent">Firebase Status: Loading...</div>
     </div>
 
+    <!-- Header -->
     <header>
         <div class="container header-container">
             <div class="logo">
-                <img src="logo.jpg" />
-                <h1>Volly Ball x Skensala</h1>
+                <img src="https://placehold.co/40x40" alt="Logo E-Skul - Ikona buku dengan simbol tanda centang berwarna putih di atas latar belakang biru" />
+                <h1>E-Skul</h1>
             </div>
             <nav>
                 <ul>
@@ -485,15 +510,18 @@
         </div>
     </header>
 
+    <!-- Hero Section -->
     <section class="hero">
         <div class="container">
-            <h2>Sistem Absen Digital Extrakulikuler Volly Ball Skensala</h2>
+            <h2>Sistem Absensi Digital Eskul</h2>
             <p>Kelola kehadiran peserta ekstrakurikuler secara digital dengan mudah dan efektif</p>
             <a href="#" class="btn btn-primary" id="attendanceBtn">Absen Sekarang</a>
         </div>
     </section>
 
+    <!-- Main Content -->
     <div class="container dashboard">
+        <!-- Sidebar -->
         <aside class="sidebar">
             <ul class="sidebar-menu">
                 <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
@@ -504,7 +532,9 @@
             </ul>
         </aside>
 
+        <!-- Main Content Area -->
         <main class="main-content">
+            <!-- Statistics Cards -->
             <div class="stats-container">
                 <div class="stat-card">
                     <i class="fas fa-users"></i>
@@ -528,6 +558,7 @@
                 </div>
             </div>
 
+            <!-- Attendance Form Card -->
             <div class="card" id="attendanceFormCard">
                 <div class="card-header">
                     <h3>Formulir Absensi</h3>
@@ -535,17 +566,14 @@
                 <form id="attendanceForm" class="attendance-form">
                     <div class="form-group">
                         <label for="studentName">Nama Peserta</label>
-                        <input type="text" id="studentName" class="form-control" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="studentClass">Kelas</label>
-                        <input type="text" id="studentClass" class="form-control" required />
+                        <input type="text" id="studentName" class="form-control" required>
                     </div>
                     <div class="form-group">
                         <label for="extracurricular">Ekstrakurikuler</label>
                         <select id="extracurricular" class="form-control" required>
                             <option value="">Pilih Ekstrakurikuler</option>
                             <option value="Voli">Voli</option>
+                            <option value="English Club">English Club</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -560,7 +588,7 @@
                     </div>
                     <div class="form-group">
                         <label for="attendanceDate">Tanggal</label>
-                        <input type="date" id="attendanceDate" class="form-control" required />
+                        <input type="date" id="attendanceDate" class="form-control" required>
                     </div>
                     <div class="form-group">
                         <label for="notes">Catatan</label>
@@ -570,6 +598,7 @@
                 </form>
             </div>
 
+            <!-- Attendance List Card -->
             <div class="card">
                 <div class="card-header">
                     <h3>Daftar Absensi Terkini</h3>
@@ -580,7 +609,6 @@
                         <thead>
                             <tr>
                                 <th>Nama</th>
-                                <th>Kelas</th>
                                 <th>Ekstrakurikuler</th>
                                 <th>Status</th>
                                 <th>Tanggal</th>
@@ -588,7 +616,7 @@
                             </tr>
                         </thead>
                         <tbody id="attendanceList">
-                            <!-- Data akan dimuat secara dinamis -->
+                            <!-- Data will be dynamically inserted here -->
                         </tbody>
                     </table>
                 </div>
@@ -596,311 +624,321 @@
         </main>
     </div>
 
+    <!-- Toast Notification -->
     <div class="toast" id="toast"></div>
-    <div class="loader" id="loader"><div class="spinner"></div></div>
 
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-        import {
-            getFirestore,
-            collection,
-            addDoc,
-            getDocs,
-            deleteDoc,
-            doc,
-            query,
-            where,
-            orderBy,
-            limit,
-            serverTimestamp
-        } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+    <!-- Loading Spinner -->
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+    </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCP2CoMPbYojeh4fFDim2l1KAlduQKa5KU",
-            authDomain: "absensi-6aeea.firebaseapp.com",
-            projectId: "absensi-6aeea",
-            storageBucket: "absensi-6aeea.appspot.com",
-            messagingSenderId: "519667816686",
-            appId: "1:519667816686:web:d02baae365ad00a40dbbff",
-        };
+    <script>
+        // Wait for Firebase to be loaded
+        function initializeApp() {
+            // DOM Elements
+            const attendanceForm = document.getElementById('attendanceForm');
+            const refreshAttendanceBtn = document.getElementById('refreshAttendance');
+            const attendanceBtn = document.getElementById('attendanceBtn');
+            const toast = document.getElementById('toast');
+            const loader = document.getElementById('loader');
+            const debugPanel = document.getElementById('debugPanel');
+            const debugContent = document.getElementById('debugContent');
+            const toggleDebugBtn = document.getElementById('toggleDebug');
+            
+            // Statistics elements
+            const totalStudentsEl = document.getElementById('totalStudents');
+            const todayAttendanceEl = document.getElementById('todayAttendance');
+            const attendanceRateEl = document.getElementById('attendanceRate');
+            const activeSessionEl = document.getElementById('activeSession');
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        window.db = db;
-        window.collection = collection;
-        window.addDoc = addDoc;
-        window.getDocs = getDocs;
-        window.deleteDoc = deleteDoc;
-        window.doc = doc;
-        window.query = query;
-        window.where = where;
-        window.orderBy = orderBy;
-        window.limit = limit;
-        window.serverTimestamp = serverTimestamp;
-
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('attendanceDate').value = today;
-
-        const attendanceForm = document.getElementById('attendanceForm');
-        const refreshAttendanceBtn = document.getElementById('refreshAttendance');
-        const attendanceBtn = document.getElementById('attendanceBtn');
-        const toast = document.getElementById('toast');
-        const loader = document.getElementById('loader');
-        const debugPanel = document.getElementById('debugPanel');
-        const debugContent = document.getElementById('debugContent');
-        const toggleDebugBtn = document.getElementById('toggleDebug');
-
-        const totalStudentsEl = document.getElementById('totalStudents');
-        const todayAttendanceEl = document.getElementById('todayAttendance');
-        const attendanceRateEl = document.getElementById('attendanceRate');
-        const activeSessionEl = document.getElementById('activeSession');
-
-        function updateDebug(message) {
-            console.log(message);
-            debugContent.innerHTML += '<br>' + new Date().toLocaleTimeString() + ': ' + message;
-            debugContent.scrollTop = debugContent.scrollHeight;
-        }
-
-        function checkFirebaseConnection() {
-            if (window.db) {
-                updateDebug('✅ Firebase connected successfully');
-                return true;
-            } else {
-                updateDebug('❌ Firebase not connected');
-                return false;
-            }
-        }
-
-        toggleDebugBtn.addEventListener('click', e => {
-            e.preventDefault();
-            debugPanel.classList.toggle('show');
-        });
-
-        attendanceForm.addEventListener('submit', async e => {
-            e.preventDefault();
-            await submitAttendance();
-        });
-
-        refreshAttendanceBtn.addEventListener('click', e => {
-            e.preventDefault();
-            loadAttendance();
-        });
-
-        attendanceBtn.addEventListener('click', e => {
-            e.preventDefault();
-            document.getElementById('attendanceFormCard').scrollIntoView({ behavior: 'smooth' });
-        });
-
-        function showLoader() {
-            loader.style.display = 'flex';
-        }
-
-        function hideLoader() {
-            loader.style.display = 'none';
-        }
-
-        function showToast(message, type = 'info', duration = 3000) {
-            toast.textContent = message;
-            toast.className = 'toast show';
-            if (type === 'error') toast.classList.add('error');
-            else if (type === 'success') toast.classList.add('success');
-
-            setTimeout(() => {
-                toast.classList.remove('show');
-                toast.className = 'toast';
-            }, duration);
-        }
-
-        function formatDate(dateString) {
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            return new Date(dateString).toLocaleDateString('id-ID', options);
-        }
-
-        async function submitAttendance() {
-            updateDebug('🔄 Starting attendance submission...');
-
-            if (!checkFirebaseConnection()) {
-                showToast('Firebase tidak terhubung. Silakan refresh halaman.', 'error');
-                return;
+            // Debug functions
+            function updateDebug(message) {
+                console.log(message);
+                debugContent.innerHTML += '<br>' + new Date().toLocaleTimeString() + ': ' + message;
             }
 
-            const name = document.getElementById('studentName').value.trim();
-            const studentClass = document.getElementById('studentClass').value.trim();
-            const extracurricular = document.getElementById('extracurricular').value;
-            const status = document.getElementById('attendanceStatus').value;
-            const date = document.getElementById('attendanceDate').value;
-            const notes = document.getElementById('notes').value.trim();
-
-            updateDebug(`📝 Form data: ${name}, ${studentClass}, ${extracurricular}, ${status}, ${date}`);
-
-            if (!name || !studentClass || !extracurricular || !status || !date) {
-                showToast('Harap lengkapi semua field yang wajib diisi', 'error');
-                updateDebug('❌ Validation failed: missing required fields');
-                return;
-            }
-            showLoader();
-
-            try {
-                updateDebug('🔍 Checking for existing attendance...');
-                const attendanceRef = window.collection(window.db, 'attendance');
-                const q = window.query(
-                    attendanceRef,
-                    window.where('name', '==', name),
-                    window.where('date', '==', date),
-                    window.where('extracurricular', '==', extracurricular)
-                );
-                const existingSnapshot = await window.getDocs(q);
-                if (!existingSnapshot.empty) {
-                    showToast('Absensi untuk peserta ini di ekstrakurikuler yang sama hari ini sudah tercatat', 'error');
-                    updateDebug('❌ Duplicate attendance found');
-                    return;
+            function checkFirebaseConnection() {
+                if (window.db) {
+                    updateDebug('✅ Firebase connected successfully');
+                    return true;
+                } else {
+                    updateDebug('❌ Firebase not connected');
+                    return false;
                 }
-
-                updateDebug('💾 Saving to Firestore...');
-                const docRef = await window.addDoc(attendanceRef, {
-                    name: name,
-                    class: studentClass,
-                    extracurricular: extracurricular,
-                    status: status,
-                    date: date,
-                    notes: notes || 'Tidak ada catatan',
-                    recordedAt: window.serverTimestamp(),
-                    updatedAt: window.serverTimestamp()
-                });
-
-                updateDebug(`✅ Document saved with ID: ${docRef.id}`);
-                showToast('Absensi berhasil disimpan!', 'success');
-
-                attendanceForm.reset();
-                document.getElementById('attendanceDate').value = today;
-
-                await loadDashboardData();
-
-            } catch (error) {
-                console.error("Error saving attendance: ", error);
-                updateDebug(`❌ Error saving: ${error.message}`);
-                showToast(`Gagal menyimpan absensi: ${error.message}`, 'error');
-            } finally {
-                hideLoader();
             }
-        }
 
-        async function loadDashboardData() {
-            if (!checkFirebaseConnection()) return;
+            // Date Setup
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('attendanceDate').value = today;
 
-            showLoader();
-            try {
-                updateDebug('📊 Loading dashboard data...');
-                const todayDate = new Date().toISOString().split('T')[0];
-                const attendanceRef = window.collection(window.db, 'attendance');
-                const todayQuery = window.query(attendanceRef, window.where('date', '==', todayDate));
-                const todaySnapshot = await window.getDocs(todayQuery);
-                todayAttendanceEl.textContent = todaySnapshot.size;
+            // Event Listeners
+            toggleDebugBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                debugPanel.classList.toggle('show');
+            });
 
-                updateDebug(`📈 Today's attendance: ${todaySnapshot.size}`);
+            attendanceForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await submitAttendance();
+            });
 
-                totalStudentsEl.textContent = "150";
-                attendanceRateEl.textContent = "90%";
-                activeSessionEl.textContent = "2";
+            refreshAttendanceBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                loadAttendance();
+            });
 
-                await loadAttendance();
+            attendanceBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('attendanceFormCard').scrollIntoView({ behavior: 'smooth' });
+            });
 
-            } catch (error) {
-                console.error("Error loading dashboard: ", error);
-                updateDebug(`❌ Error loading dashboard: ${error.message}`);
-                showToast(`Gagal memuat data: ${error.message}`, 'error');
-            } finally {
-                hideLoader();
+            // Utility Functions
+            function showLoader() {
+                loader.style.display = 'flex';
             }
-        }
 
-        async function loadAttendance() {
-            if (!checkFirebaseConnection()) return;
+            function hideLoader() {
+                loader.style.display = 'none';
+            }
 
-            const attendanceList = document.getElementById('attendanceList');
-            attendanceList.innerHTML = '';
-
-            try {
-                updateDebug('📋 Loading attendance list...');
-                const attendanceRef = window.collection(window.db, 'attendance');
-                const q = window.query(attendanceRef, window.orderBy('recordedAt', 'desc'), window.limit(10));
-                const querySnapshot = await window.getDocs(q);
-
-                if (querySnapshot.empty) {
-                    attendanceList.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada data absensi</td></tr>';
-                    updateDebug('📋 No attendance records found');
-                    return;
+            function showToast(message, type = 'info', duration = 3000) {
+                toast.textContent = message;
+                toast.className = 'toast show';
+                if (type === 'error') {
+                    toast.classList.add('error');
+                } else if (type === 'success') {
+                    toast.classList.add('success');
                 }
-
-                updateDebug(`📋 Loaded ${querySnapshot.size} attendance records`);
-
-                querySnapshot.forEach(doc => {
-                    const data = doc.data();
-                    const row = document.createElement('tr');
-
-                    let statusBadge = '';
-                    if (data.status === 'Hadir') statusBadge = '<span class="badge badge-success">Hadir</span>';
-                    else if (data.status === 'Izin') statusBadge = '<span class="badge badge-warning">Izin</span>';
-                    else if (data.status === 'Sakit') statusBadge = '<span class="badge badge-warning">Sakit</span>';
-                    else statusBadge = '<span class="badge badge-danger">Alpa</span>';
-
-                    row.innerHTML = `
-                        <td>${data.name}</td>
-                        <td>${data.class || '-'}</td>
-                        <td>${data.extracurricular}</td>
-                        <td>${statusBadge}</td>
-                        <td>${formatDate(data.date)}</td>
-                        <td>
-                            <button class="btn" style="padding:5px 10px; font-size:0.8rem;" onclick="editAttendance('${doc.id}')">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn" style="padding:5px 10px; font-size:0.8rem;" onclick="deleteAttendance('${doc.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    `;
-
-                    attendanceList.appendChild(row);
-                });
-            } catch (error) {
-                console.error("Error loading attendance: ", error);
-                updateDebug(`❌ Error loading attendance: ${error.message}`);
-                showToast(`Gagal memuat daftar absensi: ${error.message}`, 'error');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    toast.className = 'toast';
+                }, duration);
             }
-        }
 
-        window.editAttendance = async function(id) {
-            showToast('Fitur edit akan diimplementasikan', 'info', 2000);
-        };
+            function formatDate(dateString) {
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                return new Date(dateString).toLocaleDateString('id-ID', options);
+            }
 
-        window.deleteAttendance = async function(id) {
-            if (confirm('Apakah Anda yakin ingin menghapus absensi ini?')) {
+            // Main Functions
+            async function submitAttendance() {
+                updateDebug('🔄 Starting attendance submission...');
+                
                 if (!checkFirebaseConnection()) {
-                    showToast('Firebase tidak terhubung', 'error');
+                    showToast('Firebase tidak terhubung. Silakan refresh halaman.', 'error');
+                    return;
+                }
+
+                const name = document.getElementById('studentName').value.trim();
+                const extracurricular = document.getElementById('extracurricular').value;
+                const status = document.getElementById('attendanceStatus').value;
+                const date = document.getElementById('attendanceDate').value;
+                const notes = document.getElementById('notes').value.trim();
+
+                updateDebug(`📝 Form data: ${name}, ${extracurricular}, ${status}, ${date}`);
+
+                // Validation
+                if (!name || !extracurricular || !status || !date) {
+                    showToast('Harap lengkapi semua field yang wajib diisi', 'error');
+                    updateDebug('❌ Validation failed: missing required fields');
                     return;
                 }
 
                 showLoader();
                 try {
-                    updateDebug(`🗑️ Deleting document: ${id}`);
-                    await window.deleteDoc(window.doc(window.db, 'attendance', id));
-                    updateDebug('✅ Document deleted successfully');
-                    showToast('Absensi berhasil dihapus', 'success');
-                    loadAttendance();
+                    updateDebug('🔍 Checking for existing attendance...');
+                    
+                    // Check for existing attendance
+                    const attendanceRef = window.collection(window.db, 'attendance');
+                    const q = window.query(
+                        attendanceRef,
+                        window.where('name', '==', name),
+                        window.where('date', '==', date),
+                        window.where('extracurricular', '==', extracurricular)
+                    );
+                    
+                    const existingSnapshot = await window.getDocs(q);
+                    
+                    if (!existingSnapshot.empty) {
+                        showToast('Absensi untuk peserta ini di ekstrakurikuler yang sama hari ini sudah tercatat', 'error');
+                        updateDebug('❌ Duplicate attendance found');
+                        return;
+                    }
+
+                    updateDebug('💾 Saving to Firestore...');
+                    
+                    // Add new attendance record
+                    const docRef = await window.addDoc(attendanceRef, {
+                        name: name,
+                        extracurricular: extracurricular,
+                        status: status,
+                        date: date,
+                        notes: notes,
+                        recordedAt: window.serverTimestamp(),
+                        updatedAt: window.serverTimestamp()
+                    });
+                    
+                    updateDebug(`✅ Document saved with ID: ${docRef.id}`);
+                    showToast('Absensi berhasil disimpan!', 'success');
+                    
+                    // Reset form
+                    attendanceForm.reset();
+                    document.getElementById('attendanceDate').value = today;
+                    
+                    // Reload data
+                    await loadDashboardData();
+                    
                 } catch (error) {
-                    console.error("Error deleting: ", error);
-                    updateDebug(`❌ Error deleting: ${error.message}`);
-                    showToast(`Gagal menghapus absensi: ${error.message}`, 'error');
+                    console.error("Error saving attendance: ", error);
+                    updateDebug(`❌ Error saving: ${error.message}`);
+                    showToast(`Gagal menyimpan absensi: ${error.message}`, 'error');
                 } finally {
                     hideLoader();
                 }
             }
-        };
 
-        updateDebug('🚀 App initialized');
-        checkFirebaseConnection();
-        loadDashboardData();
+            async function loadDashboardData() {
+                if (!checkFirebaseConnection()) {
+                    return;
+                }
+
+                showLoader();
+                try {
+                    updateDebug('📊 Loading dashboard data...');
+                    
+                    // Get today's attendance count
+                    const today = new Date().toISOString().split('T')[0];
+                    const attendanceRef = window.collection(window.db, 'attendance');
+                    const todayQuery = window.query(
+                        attendanceRef,
+                        window.where('date', '==', today)
+                    );
+                    
+                    const todaySnapshot = await window.getDocs(todayQuery);
+                    todayAttendanceEl.textContent = todaySnapshot.size;
+                    
+                    updateDebug(`📈 Today's attendance: ${todaySnapshot.size}`);
+                    
+                    // Set placeholder values
+                    totalStudentsEl.textContent = "150";
+                    attendanceRateEl.textContent = "90%";
+                    activeSessionEl.textContent = "2";
+                    
+                    // Load recent attendance
+                    await loadAttendance();
+                    
+                } catch (error) {
+                    console.error("Error loading dashboard: ", error);
+                    updateDebug(`❌ Error loading dashboard: ${error.message}`);
+                    showToast(`Gagal memuat data: ${error.message}`, 'error');
+                } finally {
+                    hideLoader();
+                }
+            }
+
+            async function loadAttendance() {
+                if (!checkFirebaseConnection()) {
+                    return;
+                }
+
+                const attendanceList = document.getElementById('attendanceList');
+                attendanceList.innerHTML = '';
+                
+                try {
+                    updateDebug('📋 Loading attendance list...');
+                    
+                    const attendanceRef = window.collection(window.db, 'attendance');
+                    const q = window.query(
+                        attendanceRef,
+                        window.orderBy('recordedAt', 'desc'),
+                        window.limit(10)
+                    );
+                    
+                    const querySnapshot = await window.getDocs(q);
+                    
+                    if (querySnapshot.empty) {
+                        attendanceList.innerHTML = '<tr><td colspan="5" style="text-align: center;">Belum ada data absensi</td></tr>';
+                        updateDebug('📋 No attendance records found');
+                        return;
+                    }
+                    
+                    updateDebug(`📋 Loaded ${querySnapshot.size} attendance records`);
+                    
+                    querySnapshot.forEach(doc => {
+                        const data = doc.data();
+                        const row = document.createElement('tr');
+                        
+                        let statusBadge = '';
+                        if (data.status === 'Hadir') {
+                            statusBadge = '<span class="badge badge-success">Hadir</span>';
+                        } else if (data.status === 'Izin') {
+                            statusBadge = '<span class="badge badge-warning">Izin</span>';
+                        } else if (data.status === 'Sakit') {
+                            statusBadge = '<span class="badge badge-warning">Sakit</span>';
+                        } else {
+                            statusBadge = '<span class="badge badge-danger">Alpa</span>';
+                        }
+                        
+                        row.innerHTML = `
+                            <td>${data.name}</td>
+                            <td>${data.extracurricular}</td>
+                            <td>${statusBadge}</td>
+                            <td>${formatDate(data.date)}</td>
+                            <td>
+                                <button class="btn" style="padding: 5px 10px; font-size: 0.8rem;" onclick="editAttendance('${doc.id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn" style="padding: 5px 10px; font-size: 0.8rem;" onclick="deleteAttendance('${doc.id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        
+                        attendanceList.appendChild(row);
+                    });
+                    
+                } catch (error) {
+                    console.error("Error loading attendance: ", error);
+                    updateDebug(`❌ Error loading attendance: ${error.message}`);
+                    showToast(`Gagal memuat daftar absensi: ${error.message}`, 'error');
+                }
+            }
+
+            // Global functions for buttons
+            window.editAttendance = async function(id) {
+                showToast('Fitur edit akan diimplementasikan', 'info', 2000);
+            };
+
+            window.deleteAttendance = async function(id) {
+                if (confirm('Apakah Anda yakin ingin menghapus absensi ini?')) {
+                    if (!checkFirebaseConnection()) {
+                        showToast('Firebase tidak terhubung', 'error');
+                        return;
+                    }
+
+                    showLoader();
+                    try {
+                        updateDebug(`🗑️ Deleting document: ${id}`);
+                        await window.deleteDoc(window.doc(window.db, 'attendance', id));
+                        updateDebug('✅ Document deleted successfully');
+                        showToast('Absensi berhasil dihapus', 'success');
+                        loadAttendance();
+                    } catch (error) {
+                        console.error("Error deleting: ", error);
+                        updateDebug(`❌ Error deleting: ${error.message}`);
+                        showToast(`Gagal menghapus absensi: ${error.message}`, 'error');
+                    } finally {
+                        hideLoader();
+                    }
+                }
+            };
+
+            // Initialize
+            updateDebug('🚀 App initialized');
+            checkFirebaseConnection();
+            loadDashboardData();
+        }
     </script>
 </body>
 </html>

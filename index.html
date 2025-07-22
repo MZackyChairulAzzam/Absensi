@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
     
@@ -339,38 +338,6 @@
             color: var(--primary-color);
         }
 
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background-color: white;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 500px;
-            padding: 30px;
-            position: relative;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--dark-color);
-        }
-
         /* Responsive Design */
         @media (max-width: 992px) {
             .dashboard {
@@ -466,7 +433,7 @@
     <header>
         <div class="container header-container">
             <div class="logo">
-                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/cf7dff8a-b51e-4e45-80c6-068fb96d82d8.png" alt="Logo E-Skul - Ikona buku dengan simbol tanda centang berwarna putih di atas latar belakang biru" />
+                <img src="https://placehold.co/40x40" alt="Logo E-Skul - Ikona buku dengan simbol tanda centang berwarna putih di atas latar belakang biru" />
                 <h1>E-Skul</h1>
             </div>
             <nav>
@@ -475,7 +442,6 @@
                     <li><a href="#">Absensi</a></li>
                     <li><a href="#">Laporan</a></li>
                     <li><a href="#">Pengaturan</a></li>
-                    <li><a href="#" id="logout">Keluar</a></li>
                 </ul>
             </nav>
         </div>
@@ -540,23 +506,11 @@
                         <input type="text" id="studentName" class="form-control" required>
                     </div>
                     <div class="form-group">
-                        <label for="studentId">Nomor Induk</label>
-                        <input type="text" id="studentId" class="form-control" required>
-                    </div>
-                    <div class="form-group">
                         <label for="extracurricular">Ekstrakurikuler</label>
                         <select id="extracurricular" class="form-control" required>
                             <option value="">Pilih Ekstrakurikuler</option>
-                            <option value="Basket">Basket</option>
-                            <option value="Futsal">Futsal</option>
                             <option value="Voli">Voli</option>
-                            <option value="Pramuka">Pramuka</option>
-                            <option value="PMR">PMR</option>
-                            <option value="Marching Band">Marching Band</option>
-                            <option value="Paduan Suara">Paduan Suara</option>
-                            <option value="Teater">Teater</option>
-                            <option value="Jurnalistik">Jurnalistik</option>
-                            <option value="Robotika">Robotika</option>
+                            <option value="English Club">English Club</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -592,7 +546,6 @@
                         <thead>
                             <tr>
                                 <th>Nama</th>
-                                <th>NIS</th>
                                 <th>Ekstrakurikuler</th>
                                 <th>Status</th>
                                 <th>Tanggal</th>
@@ -608,58 +561,6 @@
         </main>
     </div>
 
-    <!-- Login Modal -->
-    <div class="modal" id="loginModal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2 style="text-align: center; margin-bottom: 20px;">Masuk ke Sistem</h2>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="loginEmail">Email</label>
-                    <input type="email" id="loginEmail" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword">Password</label>
-                    <input type="password" id="loginPassword" class="form-control" required>
-                </div>
-                <button type="submit" class="btn-submit">Masuk</button>
-            </form>
-            <p style="text-align: center; margin-top: 15px;">
-                Belum punya akun? <a href="#" id="showRegister" style="color: var(--primary-color);">Daftar disini</a>
-            </p>
-        </div>
-    </div>
-
-    <!-- Register Modal -->
-    <div class="modal" id="registerModal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2 style="text-align: center; margin-bottom: 20px;">Daftar Akun Baru</h2>
-            <form id="registerForm">
-                <div class="form-group">
-                    <label for="registerName">Nama Lengkap</label>
-                    <input type="text" id="registerName" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="registerEmail">Email</label>
-                    <input type="email" id="registerEmail" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="registerPassword">Password</label>
-                    <input type="password" id="registerPassword" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="registerConfirmPassword">Konfirmasi Password</label>
-                    <input type="password" id="registerConfirmPassword" class="form-control" required>
-                </div>
-                <button type="submit" class="btn-submit">Daftar</button>
-            </form>
-            <p style="text-align: center; margin-top: 15px;">
-                Sudah punya akun? <a href="#" id="showLogin" style="color: var(--primary-color);">Masuk disini</a>
-            </p>
-        </div>
-    </div>
-
     <!-- Toast Notification -->
     <div class="toast" id="toast"></div>
 
@@ -670,19 +571,17 @@
 
     <script>
         // Firebase Configuration
-        // Use your actual Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyCP2CoMPbYojeh4fFDim2l1KAlduQKa5KU",
-            authDomain: "absensi-6aeea.firebaseapp.com", 
+            authDomain: "absensi-6aeea.firebaseapp.com",
             projectId: "absensi-6aeea",
             storageBucket: "absensi-6aeea.firebasestorage.app",
             messagingSenderId: "519667816686",
-            appId: "1:519667816686:web:d02baae365ad00a40dbbff"
+            appId: "1:519667816686:web:d02baae365ad00a40dbbff",
         };
 
         // Initialize Firebase services
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
         const db = firebase.firestore();
         const storage = firebase.storage();
         
@@ -695,19 +594,11 @@
         const attendanceCollection = db.collection("attendance");
         
         // DOM Elements
-        const logoutBtn = document.getElementById('logout');
         const attendanceForm = document.getElementById('attendanceForm');
         const refreshAttendanceBtn = document.getElementById('refreshAttendance');
         const attendanceBtn = document.getElementById('attendanceBtn');
-        const loginModal = document.getElementById('loginModal');
-        const registerModal = document.getElementById('registerModal');
-        const showRegister = document.getElementById('showRegister');
-        const showLogin = document.getElementById('showLogin');
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
         const toast = document.getElementById('toast');
         const loader = document.getElementById('loader');
-        const closeModalButtons = document.querySelectorAll('.close-modal');
         
         // Statistics elements
         const totalStudentsEl = document.getElementById('totalStudents');
@@ -715,21 +606,13 @@
         const attendanceRateEl = document.getElementById('attendanceRate');
         const activeSessionEl = document.getElementById('activeSession');
 
-        // Variables
-        let currentUser = null;
-
         // Date Setup
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('attendanceDate').value = today;
 
         // Event Listeners
         document.addEventListener('DOMContentLoaded', () => {
-            checkAuthState();
-        });
-
-        logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            logout();
+            loadDashboardData();
         });
 
         attendanceForm.addEventListener('submit', async (e) => {
@@ -745,45 +628,6 @@
         attendanceBtn.addEventListener('click', (e) => {
             e.preventDefault();
             document.getElementById('attendanceFormCard').scrollIntoView({ behavior: 'smooth' });
-        });
-
-        showRegister.addEventListener('click', (e) => {
-            e.preventDefault();
-            loginModal.style.display = 'none';
-            registerModal.style.display = 'flex';
-        });
-
-        showLogin.addEventListener('click', (e) => {
-            e.preventDefault();
-            registerModal.style.display = 'none';
-            loginModal.style.display = 'flex';
-        });
-
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await loginUser();
-        });
-
-        registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await registerUser();
-        });
-
-        closeModalButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                loginModal.style.display = 'none';
-                registerModal.style.display = 'none';
-            });
-        });
-
-        // Modal close when clicking outside
-        window.addEventListener('click', (e) => {
-            if (e.target === loginModal) {
-                loginModal.style.display = 'none';
-            }
-            if (e.target === registerModal) {
-                registerModal.style.display = 'none';
-            }
         });
 
         // Utility Functions
@@ -810,105 +654,15 @@
         }
 
         // Main Functions
-        async function checkAuthState() {
-            return new Promise((resolve) => {
-                auth.onAuthStateChanged((user) => {
-                    if (user) {
-                        currentUser = user;
-                        hideLoginModal();
-                        loadDashboardData();
-                        resolve(true);
-                    } else {
-                        showLoginModal();
-                        resolve(false);
-                    }
-                });
-            });
-        }
-
-        async function loginUser() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-
-            showLoader();
-            try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                currentUser = userCredential.user;
-                hideLoginModal();
-                loadDashboardData();
-                showToast('Anda berhasil masuk');
-            } catch (error) {
-                showToast(error.message);
-            } finally {
-                hideLoader();
-            }
-        }
-
-        async function registerUser() {
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('registerConfirmPassword').value;
-
-            if (password !== confirmPassword) {
-                showToast('Password dan konfirmasi password tidak cocok');
-                return;
-            }
-
-            showLoader();
-            try {
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                await db.collection('users').doc(userCredential.user.uid).set({
-                    name: name,
-                    email: email,
-                    role: 'admin',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                showToast('Pendaftaran berhasil, silakan masuk');
-                registerModal.style.display = 'none';
-                loginModal.style.display = 'flex';
-                document.getElementById('loginEmail').value = email;
-            } catch (error) {
-                showToast(error.message);
-            } finally {
-                hideLoader();
-            }
-        }
-
-        async function logout() {
-            showLoader();
-            try {
-                await auth.signOut();
-                currentUser = null;
-                showToast('Anda berhasil keluar');
-            } catch (error) {
-                showToast(error.message);
-            } finally {
-                hideLoader();
-            }
-        }
-
         async function submitAttendance() {
-            if (!currentUser) {
-                showToast('Silakan login terlebih dahulu');
-                showLoginModal();
-                return;
-            }
-            if (!currentUser) {
-                showToast('Silakan login terlebih dahulu');
-                showLoginModal();
-                return;
-            }
             const name = document.getElementById('studentName').value.trim();
-            const studentId = document.getElementById('studentId').value.trim();
             const extracurricular = document.getElementById('extracurricular').value;
             const status = document.getElementById('attendanceStatus').value;
             const date = document.getElementById('attendanceDate').value;
             const notes = document.getElementById('notes').value.trim();
 
             // Validation
-            if (!name || !studentId || !extracurricular || !status || !date) {
+            if (!name || !extracurricular || !status || !date) {
                 showToast('Harap lengkapi semua field yang wajib diisi');
                 return;
             }
@@ -917,24 +671,23 @@
             try {
                 // First check if attendance already exists for this student today
                 const existingQuery = await attendanceCollection
-                    .where('studentId', '==', studentId)
+                    .where('name', '==', name)
                     .where('date', '==', date)
+                    .where('extracurricular', '==', extracurricular)
                     .get();
                 
                 if (!existingQuery.empty) {
-                    showToast('Absensi untuk siswa ini hari ini sudah tercatat');
+                    showToast('Absensi untuk peserta ini di ekstrakurikuler yang sama hari ini sudah tercatat');
                     return;
                 }
 
                 await attendanceCollection.add({
                     name,
-                    studentId,
                     extracurricular,
                     status, 
                     date,
                     notes,
                     recordedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    recordedBy: currentUser.uid,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
@@ -944,13 +697,7 @@
                 loadDashboardData();
             } catch (error) {
                 console.error("Error saving attendance: ", error);
-                if (error.code === 'permission-denied') {
-                    showToast('Error: Tidak memiliki izin. Periksa Firestore rules');
-                } else if (error.code === 'unavailable') {
-                    showToast('Error: Koneksi terputus. Coba lagi');
-                } else {
-                    showToast(`Gagal menyimpan: ${error.message}`); 
-                }
+                showToast('Gagal menyimpan absensi: ' + error.message); 
             } finally {
                 hideLoader();
                 loadAttendance(); // Refresh the list
@@ -958,29 +705,25 @@
         }
 
         async function loadDashboardData() {
-            if (!currentUser) return;
-
             showLoader();
             try {
                 // Load statistics
                 const today = new Date().toISOString().split('T')[0];
                 
-                // Get total students count
-                const studentsSnapshot = await db.collection('students').count().get();
-                totalStudentsEl.textContent = studentsSnapshot.data().count;
+                // Get total students count (placeholder)
+                totalStudentsEl.textContent = "150";
                 
                 // Get today's attendance count
                 const todayAttendanceQuery = await attendanceCollection
                     .where('date', '==', today)
-                    .count()
                     .get();
-                todayAttendanceEl.textContent = todayAttendanceQuery.data().count;
+                todayAttendanceEl.textContent = todayAttendanceQuery.size;
                 
                 // Get attendance rate (placeholder - you might want to implement real calculation)
                 attendanceRateEl.textContent = "90%";
                 
                 // Get active sessions (placeholder)
-                activeSessionEl.textContent = "1";
+                activeSessionEl.textContent = "2";
                 
                 // Load recent attendance
                 await loadAttendance();
@@ -1002,7 +745,7 @@
                     .get();
                 
                 if (querySnapshot.empty) {
-                    attendanceList.innerHTML = '<tr><td colspan="6" style="text-align: center;">Belum ada data absensi</td></tr>';
+                    attendanceList.innerHTML = '<tr><td colspan="5" style="text-align: center;">Belum ada data absensi</td></tr>';
                     return;
                 }
                 
@@ -1023,7 +766,6 @@
                     
                     row.innerHTML = `
                         <td>${data.name}</td>
-                        <td>${data.studentId}</td>
                         <td>${data.extracurricular}</td>
                         <td>${statusBadge}</td>
                         <td>${formatDate(data.date)}</td>

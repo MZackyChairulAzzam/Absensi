@@ -512,7 +512,7 @@
                 </div>
                 <form id="attendanceForm" class="attendance-form">
                     <div class="form-group">
-                        <label for="studentName">Nama Peserta (HURUF KAPITAL)</label>
+                        <label for="studentName">Nama Peserta</label>
                         <input type="text" id="studentName" class="form-control" required />
                     </div>
                     <div class="form-group">
@@ -561,9 +561,7 @@
                         <label for="extracurricular">Ekstrakurikuler</label>
                         <select id="extracurricular" class="form-control" required>
                             <option value="">Pilih Ekstrakurikuler</option>
-                            <option value="Volly Ball">Volly Ball(Pa Cecep/Bu Ade)</option>
-                            <option value="Merelakan Dia">Merelakan Dia(Secret)</option>
-                            <option value="Esport">Esport(Azzam/Paiz)</option>
+                            <option value="Voli">Voli</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -690,6 +688,15 @@
             currentDayEl.textContent = `${dayName}, ${date} ${monthName} ${year}`;
         }
 
+        function formatDate(dateString) {
+            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const date = new Date(dateString);
+            const dayName = days[date.getDay()];
+            const formattedDate = date.toLocaleDateString('id-ID', options);
+            return `${dayName}, ${formattedDate}`;
+        }
+
         function updateDebug(message) {
             console.log(message);
             debugContent.innerHTML += '<br>' + new Date().toLocaleTimeString() + ': ' + message;
@@ -744,11 +751,6 @@
                 toast.classList.remove('show');
                 toast.className = 'toast';
             }, duration);
-        }
-
-        function formatDate(dateString) {
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            return new Date(dateString).toLocaleDateString('id-ID', options);
         }
 
         async function submitAttendance() {
@@ -835,7 +837,7 @@
                 updateDebug(`📈 Today's attendance: ${todaySnapshot.size}`);
 
                 totalStudentsEl.textContent = "70";
-                attendanceRateEl.textContent = "40%";
+                attendanceRateEl.textContent = "50%";
                 activeSessionEl.textContent = "15:00 - 17:00/17:30";
 
                 await loadAttendance();

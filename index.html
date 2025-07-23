@@ -516,82 +516,6 @@
         .debug-panel.show {
             display: block;
         }
-
-        /* Styling untuk Schedule Card */
-        .schedule-content {
-            display: grid;
-            gap: 20px;
-        }
-
-        .schedule-item {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            border-left: 4px solid var(--primary-color);
-        }
-
-        .schedule-item h4 {
-            color: var(--primary-color);
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-
-        .schedule-details p {
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .schedule-details i {
-            color: var(--accent-color);
-            width: 16px;
-        }
-
-        /* Styling untuk Payment Card */
-        .payment-content {
-            display: grid;
-            gap: 25px;
-        }
-
-        .payment-info {
-            display: grid;
-            gap: 20px;
-        }
-
-        .payment-item {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            border-left: 4px solid var(--success-color);
-        }
-
-        .payment-item h4 {
-            color: var(--success-color);
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-
-        .payment-item p {
-            margin-bottom: 8px;
-        }
-
-        .payment-status {
-            background-color: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 8px;
-            padding: 20px;
-        }
-
-        .payment-status h4 {
-            color: var(--warning-color);
-            margin-bottom: 15px;
-        }
-
-        .status-info p {
-            margin-bottom: 15px;
-            color: #856404;
-        }
     </style>
 </head>
 <body>
@@ -631,8 +555,6 @@
             <ul class="sidebar-menu">
                 <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
                 <li><a href="#"><i class="fas fa-clipboard-check"></i> Absensi</a></li>
-                <li><a href="#" onclick="showSchedule()"><i class="fas fa-calendar-alt"></i> Jadwal Latihan</a></li>
-                <li><a href="#" onclick="showPayment()"><i class="fas fa-money-bill-wave"></i> Bayar Kas</a></li>
                 <li><a href="#"><i class="fas fa-users"></i> Peserta</a></li>
                 <li><a href="#"><i class="fas fa-chart-bar"></i> Laporan</a></li>
                 <li><a href="#"><i class="fas fa-cog"></i> Pengaturan</a></li>
@@ -660,6 +582,16 @@
                     <i class="fas fa-clock"></i>
                     <h4>Sesi Aktif</h4>
                     <h3 id="activeSession">0</h3>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h4>Jadwal Latihan</h4>
+                    <h3 id="scheduleInfo">Sen, Rab, Jum</h3>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <h4>Bayar Kas</h4>
+                    <h3 id="paymentInfo">Rp 10.000</h3>
                 </div>
             </div>
 
@@ -743,81 +675,6 @@
                     </div>
                     <button type="submit" class="btn-submit">Simpan Absensi</button>
                 </form>
-            </div>
-
-            <!-- Card Jadwal Latihan -->
-            <div class="card" id="scheduleCard" style="display: none;">
-                <div class="card-header">
-                    <h3>Jadwal Latihan Ekstrakurikuler</h3>
-                </div>
-                <div class="schedule-content">
-                    <div class="schedule-item">
-                        <h4><i class="fas fa-volleyball-ball"></i> Volly Ball</h4>
-                        <div class="schedule-details">
-                            <p><i class="fas fa-calendar"></i> <strong>Hari:</strong> Senin, Rabu, Jumat</p>
-                            <p><i class="fas fa-clock"></i> <strong>Waktu:</strong> 15:00 - 17:30 WIB</p>
-                            <p><i class="fas fa-map-marker-alt"></i> <strong>Tempat:</strong> Lapangan Volly Sekolah</p>
-                            <p><i class="fas fa-user-tie"></i> <strong>Pelatih:</strong> Pa Cecep / Bu Ade</p>
-                        </div>
-                    </div>
-                    <div class="schedule-item">
-                        <h4><i class="fas fa-gamepad"></i> Esport</h4>
-                        <div class="schedule-details">
-                            <p><i class="fas fa-calendar"></i> <strong>Hari:</strong> Selasa, Kamis</p>
-                            <p><i class="fas fa-clock"></i> <strong>Waktu:</strong> 14:00 - 16:00 WIB</p>
-                            <p><i class="fas fa-map-marker-alt"></i> <strong>Tempat:</strong> Lab Komputer</p>
-                            <p><i class="fas fa-user-tie"></i> <strong>Pelatih:</strong> Azzam / Paiz</p>
-                        </div>
-                    </div>
-                    <div class="schedule-item">
-                        <h4><i class="fas fa-heart"></i> Merelakan Dia</h4>
-                        <div class="schedule-details">
-                            <p><i class="fas fa-calendar"></i> <strong>Hari:</strong> Setiap hari (dalam hati)</p>
-                            <p><i class="fas fa-clock"></i> <strong>Waktu:</strong> 24/7</p>
-                            <p><i class="fas fa-map-marker-alt"></i> <strong>Tempat:</strong> Di mana saja</p>
-                            <p><i class="fas fa-user-tie"></i> <strong>Pelatih:</strong> Secret</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card Bayar Kas -->
-            <div class="card" id="paymentCard" style="display: none;">
-                <div class="card-header">
-                    <h3>Informasi Bayar Kas Ekstrakurikuler</h3>
-                </div>
-                <div class="payment-content">
-                    <div class="payment-info">
-                        <div class="payment-item">
-                            <h4><i class="fas fa-money-bill-wave"></i> Kas Bulanan</h4>
-                            <p><strong>Jumlah:</strong> Rp 10.000 per bulan</p>
-                            <p><strong>Jatuh Tempo:</strong> Tanggal 1 setiap bulan</p>
-                            <p><strong>Cara Bayar:</strong> Langsung ke bendahara atau transfer</p>
-                        </div>
-                        <div class="payment-item">
-                            <h4><i class="fas fa-tshirt"></i> Seragam Ekstrakurikuler</h4>
-                            <p><strong>Jumlah:</strong> Rp 75.000 (sekali bayar)</p>
-                            <p><strong>Include:</strong> Jersey + Celana</p>
-                            <p><strong>Ukuran:</strong> S, M, L, XL, XXL</p>
-                        </div>
-                        <div class="payment-item">
-                            <h4><i class="fas fa-university"></i> Rekening Pembayaran</h4>
-                            <p><strong>Bank:</strong> BRI</p>
-                            <p><strong>No. Rekening:</strong> 1234-5678-9012-3456</p>
-                            <p><strong>Atas Nama:</strong> Bendahara Ekstrakurikuler</p>
-                            <p><em>*Jangan lupa kirim bukti transfer ke grup WhatsApp</em></p>
-                        </div>
-                    </div>
-                    <div class="payment-status">
-                        <h4><i class="fas fa-exclamation-triangle"></i> Status Pembayaran Anda</h4>
-                        <div class="status-info">
-                            <p>Untuk mengecek status pembayaran kas, silakan hubungi bendahara atau cek di grup WhatsApp ekstrakurikuler.</p>
-                            <button class="btn btn-primary" onclick="checkPaymentStatus()">
-                                <i class="fas fa-search"></i> Cek Status Pembayaran
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <div class="card">
@@ -1393,65 +1250,6 @@
         checkFirebaseConnection();
         displayCurrentDay(); // Display current day when page loads
         loadDashboardData();
-
-        // Functions untuk menampilkan/menyembunyikan card
-        window.showSchedule = function() {
-            // Sembunyikan semua card
-            document.getElementById('attendanceFormCard').style.display = 'none';
-            document.getElementById('paymentCard').style.display = 'none';
-            document.querySelector('.card:last-of-type').style.display = 'none'; // Card daftar absensi
-            
-            // Tampilkan card jadwal
-            document.getElementById('scheduleCard').style.display = 'block';
-            
-            // Update active menu
-            updateActiveMenu('Jadwal Latihan');
-        };
-
-        window.showPayment = function() {
-            // Sembunyikan semua card
-            document.getElementById('attendanceFormCard').style.display = 'none';
-            document.getElementById('scheduleCard').style.display = 'none';
-            document.querySelector('.card:last-of-type').style.display = 'none'; // Card daftar absensi
-            
-            // Tampilkan card pembayaran
-            document.getElementById('paymentCard').style.display = 'block';
-            
-            // Update active menu
-            updateActiveMenu('Bayar Kas');
-        };
-
-        window.showDashboard = function() {
-            // Tampilkan semua card dashboard
-            document.getElementById('attendanceFormCard').style.display = 'block';
-            document.getElementById('scheduleCard').style.display = 'none';
-            document.getElementById('paymentCard').style.display = 'none';
-            document.querySelector('.card:last-of-type').style.display = 'block'; // Card daftar absensi
-            
-            // Update active menu
-            updateActiveMenu('Dashboard');
-        };
-
-        window.checkPaymentStatus = function() {
-            showToast('Fitur cek status pembayaran akan segera tersedia. Silakan hubungi bendahara untuk informasi lebih lanjut.', 'info', 4000);
-        };
-
-        function updateActiveMenu(activeText) {
-            // Remove active class from all menu items
-            const menuItems = document.querySelectorAll('.sidebar-menu li a');
-            menuItems.forEach(item => {
-                item.classList.remove('active');
-                if (item.textContent.trim().includes(activeText)) {
-                    item.classList.add('active');
-                }
-            });
-        }
-
-        // Update menu items to call showDashboard
-        document.querySelector('.sidebar-menu li:first-child a').onclick = function(e) {
-            e.preventDefault();
-            showDashboard();
-        };
     </script>
 </body>
 </html>

@@ -135,6 +135,12 @@
             color: white;
         }
 
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+            margin: 10px 5px;
+        }
+
         .dashboard {
             display: grid;
             grid-template-columns: 250px 1fr;
@@ -359,6 +365,40 @@
             border-radius: 5px;
             margin: 20px 0 10px 0;
             font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pagination-info {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .pagination-controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .load-more-btn {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 0 5px;
+        }
+
+        .load-more-btn:hover {
+            background-color: var(--primary-color);
+        }
+
+        .load-more-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
 
         @media (max-width: 992px) {
@@ -387,6 +427,12 @@
 
             nav ul {
                 justify-content: center;
+            }
+
+            .class-header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
             }
         }
 
@@ -623,12 +669,15 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3>Daftar Absensi Terkini</h3>
+                    <h3>Daftar Absensi Terkini (Diurutkan A-Z)</h3>
                     <button class="btn btn-primary" id="refreshAttendance">Segarkan</button>
                 </div>
                 
                 <!-- Kelas 10 -->
-                <div class="class-header">Kelas 10</div>
+                <div class="class-header">
+                    <span>Kelas 10</span>
+                    <span class="pagination-info" id="paginationInfo10">Memuat data...</span>
+                </div>
                 <div class="table-responsive">
                     <table class="attendance-table">
                         <thead>
@@ -647,9 +696,17 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="pagination-controls">
+                    <button class="load-more-btn" id="loadMore10" onclick="loadMoreAttendance(10)">
+                        <i class="fas fa-plus"></i> Muat Lebih Banyak Kelas 10
+                    </button>
+                </div>
                 
                 <!-- Kelas 11 -->
-                <div class="class-header">Kelas 11</div>
+                <div class="class-header">
+                    <span>Kelas 11</span>
+                    <span class="pagination-info" id="paginationInfo11">Memuat data...</span>
+                </div>
                 <div class="table-responsive">
                     <table class="attendance-table">
                         <thead>
@@ -667,6 +724,11 @@
                             <!-- Data Kelas 11 akan dimuat secara dinamis -->
                         </tbody>
                     </table>
+                </div>
+                <div class="pagination-controls">
+                    <button class="load-more-btn" id="loadMore11" onclick="loadMoreAttendance(11)">
+                        <i class="fas fa-plus"></i> Muat Lebih Banyak Kelas 11
+                    </button>
                 </div>
             </div>
         </main>
@@ -735,12 +797,16 @@
         const attendanceRateEl = document.getElementById('attendanceRate');
         const activeSessionEl = document.getElementById('activeSession');
 
-        // Variabel untuk pagination
+        // Variabel untuk pagination yang diperbaiki
         let lastVisible10 = null;
         let lastVisible11 = null;
         const pageSize = 10; // Jumlah data per halaman
         let allRecordsLoaded10 = false;
         let allRecordsLoaded11 = false;
+        let currentPage10 = 0;
+        let currentPage11 = 0;
+        let totalRecords10 = 0;
+        let totalRecords11 = 0;
 
         // Function to display current day in Indonesian
         function displayCurrentDay() {
@@ -779,6 +845,13 @@
                 updateDebug('❌ Firebase not connected');
                 return false;
             }
+        }
+
+        function updatePaginationInfo(classNumber, currentPage, totalRecords, pageSize) {
+            const paginationInfo = document.getElementById(`paginationInfo${classNumber}`);
+            const startRecord = (currentPage * pageSize) + 1;
+            const endRecord = Math.min((currentPage + 1) * pageSize, totalRecords);
+            paginationInfo.textContent = `Menampilkan ${startRecord}-${endRecord} dari ${totalRecords} data`;
         }
 
         toggleDebugBtn.addEventListener('click', e => {
@@ -829,7 +902,7 @@
                 return;
             }
 
-            const name = document.getElementById('studentName').value.trim();
+            const name = document.getElementById('studentName').value.trim().toUpperCase();
             const studentClass = document.getElementById('studentClass').value.trim();
             const extracurricular = document.getElementById('extracurricular').value;
             const status = document.getElementById('attendanceStatus').value;
@@ -924,6 +997,8 @@
 
             const attendanceList10 = document.getElementById('attendanceList10');
             const attendanceList11 = document.getElementById('attendanceList11');
+            const loadMore10Btn = document.getElementById('loadMore10');
+            const loadMore11Btn = document.getElementById('loadMore11');
             
             // Jika bukan load more, reset data
             if (!loadMore) {
@@ -933,13 +1008,17 @@
                 lastVisible11 = null;
                 allRecordsLoaded10 = false;
                 allRecordsLoaded11 = false;
+                currentPage10 = 0;
+                currentPage11 = 0;
+                totalRecords10 = 0;
+                totalRecords11 = 0;
             }
 
             showLoader();
             try {
                 updateDebug('📋 Loading attendance list...');
                 
-                // Load data untuk Kelas 10
+                // Load data untuk Kelas 10 dengan pengurutan berdasarkan nama (A-Z)
                 if (!allRecordsLoaded10) {
                     const attendanceRef = window.collection(window.db, 'attendance');
                     
@@ -972,20 +1051,26 @@
                             attendanceList10.innerHTML = '<tr><td colspan="7" style="text-align:center;">Belum ada data absensi Kelas 10</td></tr>';
                         }
                         allRecordsLoaded10 = true;
+                        loadMore10Btn.disabled = true;
+                        loadMore10Btn.innerHTML = '<i class="fas fa-check"></i> Semua Data Kelas 10 Telah Dimuat';
                         updateDebug('📋 No more class 10 attendance records found');
                     } else {
                         updateDebug(`📋 Loaded ${querySnapshot10.size} class 10 attendance records`);
                         lastVisible10 = querySnapshot10.docs[querySnapshot10.docs.length - 1];
 
-                        // Convert to array and add numbering
+                        // Convert to array dan urutkan berdasarkan nama A-Z
                         const records10 = [];
                         querySnapshot10.forEach(doc => {
                             records10.push({ id: doc.id, ...doc.data() });
                         });
 
-                        // Display with numbering
+                        // Urutkan berdasarkan nama A-Z
+                        records10.sort((a, b) => a.name.localeCompare(b.name));
+
+                        // Display dengan penomoran yang benar
                         records10.forEach((data, index) => {
                             const row = document.createElement('tr');
+                            const rowNumber = (currentPage10 * pageSize) + attendanceList10.children.length + 1;
 
                             let statusBadge = '';
                             if (data.status === 'Hadir') statusBadge = '<span class="badge badge-success">Hadir</span>';
@@ -994,7 +1079,7 @@
                             else statusBadge = '<span class="badge badge-danger">Alpa</span>';
 
                             row.innerHTML = `
-                                <td>${attendanceList10.children.length + 1}</td>
+                                <td>${rowNumber}</td>
                                 <td>${data.name}</td>
                                 <td>${data.class || '-'}</td>
                                 <td>${data.extracurricular}</td>
@@ -1012,10 +1097,19 @@
 
                             attendanceList10.appendChild(row);
                         });
+
+                        totalRecords10 += records10.length;
+                        if (querySnapshot10.size < pageSize) {
+                            allRecordsLoaded10 = true;
+                            loadMore10Btn.disabled = true;
+                            loadMore10Btn.innerHTML = '<i class="fas fa-check"></i> Semua Data Kelas 10 Telah Dimuat';
+                        }
                     }
+
+                    updatePaginationInfo(10, currentPage10, totalRecords10, pageSize);
                 }
 
-                // Load data untuk Kelas 11
+                // Load data untuk Kelas 11 dengan pengurutan berdasarkan nama (A-Z)
                 if (!allRecordsLoaded11) {
                     const attendanceRef = window.collection(window.db, 'attendance');
                     
@@ -1048,20 +1142,26 @@
                             attendanceList11.innerHTML = '<tr><td colspan="7" style="text-align:center;">Belum ada data absensi Kelas 11</td></tr>';
                         }
                         allRecordsLoaded11 = true;
+                        loadMore11Btn.disabled = true;
+                        loadMore11Btn.innerHTML = '<i class="fas fa-check"></i> Semua Data Kelas 11 Telah Dimuat';
                         updateDebug('📋 No more class 11 attendance records found');
                     } else {
                         updateDebug(`📋 Loaded ${querySnapshot11.size} class 11 attendance records`);
                         lastVisible11 = querySnapshot11.docs[querySnapshot11.docs.length - 1];
 
-                        // Convert to array and add numbering
+                        // Convert to array dan urutkan berdasarkan nama A-Z
                         const records11 = [];
                         querySnapshot11.forEach(doc => {
                             records11.push({ id: doc.id, ...doc.data() });
                         });
 
-                        // Display with numbering
+                        // Urutkan berdasarkan nama A-Z
+                        records11.sort((a, b) => a.name.localeCompare(b.name));
+
+                        // Display dengan penomoran yang benar
                         records11.forEach((data, index) => {
                             const row = document.createElement('tr');
+                            const rowNumber = (currentPage11 * pageSize) + attendanceList11.children.length + 1;
 
                             let statusBadge = '';
                             if (data.status === 'Hadir') statusBadge = '<span class="badge badge-success">Hadir</span>';
@@ -1070,7 +1170,7 @@
                             else statusBadge = '<span class="badge badge-danger">Alpa</span>';
 
                             row.innerHTML = `
-                                <td>${attendanceList11.children.length + 1}</td>
+                                <td>${rowNumber}</td>
                                 <td>${data.name}</td>
                                 <td>${data.class || '-'}</td>
                                 <td>${data.extracurricular}</td>
@@ -1088,7 +1188,16 @@
 
                             attendanceList11.appendChild(row);
                         });
+
+                        totalRecords11 += records11.length;
+                        if (querySnapshot11.size < pageSize) {
+                            allRecordsLoaded11 = true;
+                            loadMore11Btn.disabled = true;
+                            loadMore11Btn.innerHTML = '<i class="fas fa-check"></i> Semua Data Kelas 11 Telah Dimuat';
+                        }
                     }
+
+                    updatePaginationInfo(11, currentPage11, totalRecords11, pageSize);
                 }
 
             } catch (error) {
@@ -1100,7 +1209,12 @@
             }
         }
 
-        window.loadMoreAttendance = function() {
+        window.loadMoreAttendance = function(classNumber) {
+            if (classNumber === 10) {
+                currentPage10++;
+            } else if (classNumber === 11) {
+                currentPage11++;
+            }
             loadAttendance(true);
         };
 
@@ -1140,3 +1254,4 @@
     </script>
 </body>
 </html>
+

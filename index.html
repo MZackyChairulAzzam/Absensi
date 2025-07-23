@@ -255,37 +255,36 @@
         }
 
         /* Pemisahan dan penegasan daftar absensi */
-        .attendance-table {
+        #attendanceTable {
             border-collapse: separate !important;
             border-spacing: 0 10px !important;
             width: 100%;
-            margin-bottom: 20px;
         }
 
-        .attendance-table tbody tr {
+        #attendanceTable tbody tr {
             background-color: white;
             border: 1px solid #ddd;
             border-radius: 8px;
         }
 
-        .attendance-table th {
+        #attendanceTable th {
             background-color: var(--light-color);
             border-bottom: 2px solid var(--primary-color);
             padding: 12px 15px !important;
         }
 
-        .attendance-table td, .attendance-table th {
+        #attendanceTable td, #attendanceTable th {
             padding: 15px 20px !important;
             vertical-align: middle;
         }
 
         /* Zebra stripes */
-        .attendance-table tbody tr:nth-child(odd) {
+        #attendanceTable tbody tr:nth-child(odd) {
             background-color: #f9f9f9;
         }
 
         /* Efek hover lebih jelas */
-        .attendance-table tbody tr:hover {
+        #attendanceTable tbody tr:hover {
             background-color: #e0eaff;
             box-shadow: 0 2px 8px rgba(67, 97, 238, 0.3);
         }
@@ -327,38 +326,6 @@
         .stat-card h3 {
             font-size: 1.8rem;
             color: var(--primary-color);
-        }
-
-        /* Style untuk badge status */
-        .badge {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .badge-success {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-
-        .badge-warning {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
-
-        .badge-danger {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-
-        .class-header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 5px;
-            margin: 20px 0 10px 0;
-            font-weight: 600;
         }
 
         @media (max-width: 992px) {
@@ -626,11 +593,8 @@
                     <h3>Daftar Absensi Terkini</h3>
                     <button class="btn btn-primary" id="refreshAttendance">Segarkan</button>
                 </div>
-                
-                <!-- Kelas 10 -->
-                <div class="class-header">Kelas 10</div>
                 <div class="table-responsive">
-                    <table class="attendance-table">
+                    <table id="attendanceTable">
                         <thead>
                             <tr>
                                 <th>No</th>
@@ -642,29 +606,8 @@
                                 <th>Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="attendanceList10">
-                            <!-- Data Kelas 10 akan dimuat secara dinamis -->
-                        </tbody>
-                    </table>
-                </div>
-                
-                <!-- Kelas 11 -->
-                <div class="class-header">Kelas 11</div>
-                <div class="table-responsive">
-                    <table class="attendance-table">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Nama</th>
-                                <th>Kelas</th>
-                                <th>Ekstrakurikuler</th>
-                                <th>Status</th>
-                                <th>Tanggal</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="attendanceList11">
-                            <!-- Data Kelas 11 akan dimuat secara dinamis -->
+                        <tbody id="attendanceList">
+                            <!-- Data akan dimuat secara dinamis -->
                         </tbody>
                     </table>
                 </div>
@@ -688,7 +631,6 @@
             where,
             orderBy,
             limit,
-            startAfter,
             serverTimestamp
         } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 
@@ -714,7 +656,6 @@
         window.where = where;
         window.orderBy = orderBy;
         window.limit = limit;
-        window.startAfter = startAfter;
         window.serverTimestamp = serverTimestamp;
 
         const today = new Date().toISOString().split('T')[0];
@@ -734,13 +675,6 @@
         const todayAttendanceEl = document.getElementById('todayAttendance');
         const attendanceRateEl = document.getElementById('attendanceRate');
         const activeSessionEl = document.getElementById('activeSession');
-
-        // Variabel untuk pagination
-        let lastVisible10 = null;
-        let lastVisible11 = null;
-        const pageSize = 10; // Jumlah data per halaman
-        let allRecordsLoaded10 = false;
-        let allRecordsLoaded11 = false;
 
         // Function to display current day in Indonesian
         function displayCurrentDay() {
@@ -904,7 +838,7 @@
 
                 updateDebug(`📈 Today's attendance: ${todaySnapshot.size}`);
 
-                totalStudentsEl.textContent = "70";
+                totalStudentsEl.textContent = "51";
                 attendanceRateEl.textContent = "40%";
                 activeSessionEl.textContent = "15:00 - 17:00/17:30";
 
@@ -919,190 +853,67 @@
             }
         }
 
-        async function loadAttendance(loadMore = false) {
+        async function loadAttendance() {
             if (!checkFirebaseConnection()) return;
 
-            const attendanceList10 = document.getElementById('attendanceList10');
-            const attendanceList11 = document.getElementById('attendanceList11');
-            
-            // Jika bukan load more, reset data
-            if (!loadMore) {
-                attendanceList10.innerHTML = '';
-                attendanceList11.innerHTML = '';
-                lastVisible10 = null;
-                lastVisible11 = null;
-                allRecordsLoaded10 = false;
-                allRecordsLoaded11 = false;
-            }
+            const attendanceList = document.getElementById('attendanceList');
+            attendanceList.innerHTML = '';
 
-            showLoader();
             try {
                 updateDebug('📋 Loading attendance list...');
-                
-                // Load data untuk Kelas 10
-                if (!allRecordsLoaded10) {
-                    const attendanceRef = window.collection(window.db, 'attendance');
-                    
-                    let q10;
-                    if (lastVisible10) {
-                        q10 = window.query(
-                            attendanceRef,
-                            window.where('class', '>=', '10'),
-                            window.where('class', '<', '11'),
-                            window.orderBy('class'),
-                            window.orderBy('name'),
-                            window.startAfter(lastVisible10),
-                            window.limit(pageSize)
-                        );
-                    } else {
-                        q10 = window.query(
-                            attendanceRef,
-                            window.where('class', '>=', '10'),
-                            window.where('class', '<', '11'),
-                            window.orderBy('class'),
-                            window.orderBy('name'),
-                            window.limit(pageSize)
-                        );
-                    }
+                const attendanceRef = window.collection(window.db, 'attendance');
+                const q = window.query(attendanceRef, window.orderBy('name'), window.limit(10));
+                const querySnapshot = await window.getDocs(q);
 
-                    const querySnapshot10 = await window.getDocs(q10);
-
-                    if (querySnapshot10.empty) {
-                        if (!loadMore && attendanceList10.children.length === 0) {
-                            attendanceList10.innerHTML = '<tr><td colspan="7" style="text-align:center;">Belum ada data absensi Kelas 10</td></tr>';
-                        }
-                        allRecordsLoaded10 = true;
-                        updateDebug('📋 No more class 10 attendance records found');
-                    } else {
-                        updateDebug(`📋 Loaded ${querySnapshot10.size} class 10 attendance records`);
-                        lastVisible10 = querySnapshot10.docs[querySnapshot10.docs.length - 1];
-
-                        // Convert to array and add numbering
-                        const records10 = [];
-                        querySnapshot10.forEach(doc => {
-                            records10.push({ id: doc.id, ...doc.data() });
-                        });
-
-                        // Display with numbering
-                        records10.forEach((data, index) => {
-                            const row = document.createElement('tr');
-
-                            let statusBadge = '';
-                            if (data.status === 'Hadir') statusBadge = '<span class="badge badge-success">Hadir</span>';
-                            else if (data.status === 'Izin') statusBadge = '<span class="badge badge-warning">Izin</span>';
-                            else if (data.status === 'Sakit') statusBadge = '<span class="badge badge-warning">Sakit</span>';
-                            else statusBadge = '<span class="badge badge-danger">Alpa</span>';
-
-                            row.innerHTML = `
-                                <td>${attendanceList10.children.length + 1}</td>
-                                <td>${data.name}</td>
-                                <td>${data.class || '-'}</td>
-                                <td>${data.extracurricular}</td>
-                                <td>${statusBadge}</td>
-                                <td>${formatDate(data.date)}</td>
-                                <td>
-                                    <button class="btn" style="padding:5px 10px; font-size:0.8rem;" onclick="editAttendance('${data.id}')">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn" style="padding:5px 10px; font-size:0.8rem;" onclick="deleteAttendance('${data.id}')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            `;
-
-                            attendanceList10.appendChild(row);
-                        });
-                    }
+                if (querySnapshot.empty) {
+                    attendanceList.innerHTML = '<tr><td colspan="7" style="text-align:center;">Belum ada data absensi</td></tr>';
+                    updateDebug('📋 No attendance records found');
+                    return;
                 }
 
-                // Load data untuk Kelas 11
-                if (!allRecordsLoaded11) {
-                    const attendanceRef = window.collection(window.db, 'attendance');
-                    
-                    let q11;
-                    if (lastVisible11) {
-                        q11 = window.query(
-                            attendanceRef,
-                            window.where('class', '>=', '11'),
-                            window.where('class', '<', '12'),
-                            window.orderBy('class'),
-                            window.orderBy('name'),
-                            window.startAfter(lastVisible11),
-                            window.limit(pageSize)
-                        );
-                    } else {
-                        q11 = window.query(
-                            attendanceRef,
-                            window.where('class', '>=', '11'),
-                            window.where('class', '<', '12'),
-                            window.orderBy('class'),
-                            window.orderBy('name'),
-                            window.limit(pageSize)
-                        );
-                    }
+                updateDebug(`📋 Loaded ${querySnapshot.size} attendance records`);
 
-                    const querySnapshot11 = await window.getDocs(q11);
+                // Convert to array and add numbering
+                const records = [];
+                querySnapshot.forEach(doc => {
+                    records.push({ id: doc.id, ...doc.data() });
+                });
 
-                    if (querySnapshot11.empty) {
-                        if (!loadMore && attendanceList11.children.length === 0) {
-                            attendanceList11.innerHTML = '<tr><td colspan="7" style="text-align:center;">Belum ada data absensi Kelas 11</td></tr>';
-                        }
-                        allRecordsLoaded11 = true;
-                        updateDebug('📋 No more class 11 attendance records found');
-                    } else {
-                        updateDebug(`📋 Loaded ${querySnapshot11.size} class 11 attendance records`);
-                        lastVisible11 = querySnapshot11.docs[querySnapshot11.docs.length - 1];
+                // Display with numbering
+                records.forEach((data, index) => {
+                    const row = document.createElement('tr');
 
-                        // Convert to array and add numbering
-                        const records11 = [];
-                        querySnapshot11.forEach(doc => {
-                            records11.push({ id: doc.id, ...doc.data() });
-                        });
+                    let statusBadge = '';
+                    if (data.status === 'Hadir') statusBadge = '<span class="badge badge-success">Hadir</span>';
+                    else if (data.status === 'Izin') statusBadge = '<span class="badge badge-warning">Izin</span>';
+                    else if (data.status === 'Sakit') statusBadge = '<span class="badge badge-warning">Sakit</span>';
+                    else statusBadge = '<span class="badge badge-danger">Alpa</span>';
 
-                        // Display with numbering
-                        records11.forEach((data, index) => {
-                            const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${data.name}</td>
+                        <td>${data.class || '-'}</td>
+                        <td>${data.extracurricular}</td>
+                        <td>${statusBadge}</td>
+                        <td>${formatDate(data.date)}</td>
+                        <td>
+                            <button class="btn" style="padding:5px 10px; font-size:0.8rem;" onclick="editAttendance('${data.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn" style="padding:5px 10px; font-size:0.8rem;" onclick="deleteAttendance('${data.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
 
-                            let statusBadge = '';
-                            if (data.status === 'Hadir') statusBadge = '<span class="badge badge-success">Hadir</span>';
-                            else if (data.status === 'Izin') statusBadge = '<span class="badge badge-warning">Izin</span>';
-                            else if (data.status === 'Sakit') statusBadge = '<span class="badge badge-warning">Sakit</span>';
-                            else statusBadge = '<span class="badge badge-danger">Alpa</span>';
-
-                            row.innerHTML = `
-                                <td>${attendanceList11.children.length + 1}</td>
-                                <td>${data.name}</td>
-                                <td>${data.class || '-'}</td>
-                                <td>${data.extracurricular}</td>
-                                <td>${statusBadge}</td>
-                                <td>${formatDate(data.date)}</td>
-                                <td>
-                                    <button class="btn" style="padding:5px 10px; font-size:0.8rem;" onclick="editAttendance('${data.id}')">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn" style="padding:5px 10px; font-size:0.8rem;" onclick="deleteAttendance('${data.id}')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            `;
-
-                            attendanceList11.appendChild(row);
-                        });
-                    }
-                }
-
+                    attendanceList.appendChild(row);
+                });
             } catch (error) {
                 console.error("Error loading attendance: ", error);
                 updateDebug(`❌ Error loading attendance: ${error.message}`);
                 showToast(`Gagal memuat daftar absensi: ${error.message}`, 'error');
-            } finally {
-                hideLoader();
             }
         }
-
-        window.loadMoreAttendance = function() {
-            loadAttendance(true);
-        };
 
         window.editAttendance = async function(id) {
             showToast('Fitur edit akan diimplementasikan', 'info', 2000);

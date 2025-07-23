@@ -102,6 +102,16 @@
             margin: 0 auto 30px;
         }
 
+        .current-day {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 10px;
+            background-color: rgba(255,255,255,0.1);
+            padding: 8px 15px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+
         .btn {
             display: inline-block;
             background-color: white;
@@ -427,39 +437,6 @@
         .debug-panel.show {
             display: block;
         }
-/* Pemisahan dan penegasan daftar absensi */
-#attendanceTable {
-    border-collapse: separate !important;
-    border-spacing: 0 10px !important;
-    width: 100%;
-}
-
-#attendanceTable tbody tr {
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-}
-
-#attendanceTable th {
-    background-color: var(--light-color);
-    border-bottom: 2px solid var(--primary-color);
-    padding: 12px 15px !important;
-}
-
-#attendanceTable td, #attendanceTable th {
-    padding: 15px 20px !important;
-    vertical-align: middle;
-}
-
-#attendanceTable tbody tr:nth-child(odd) {
-    background-color: #f9f9f9;
-}
-
-#attendanceTable tbody tr:hover {
-    background-color: #e0eaff;
-    box-shadow: 0 2px 8px rgba(67, 97, 238, 0.3);
-}
-
     </style>
 </head>
 <body>
@@ -489,6 +466,7 @@
         <div class="container">
             <h2>Sistem Absen Digital Extrakulikuler Volly Ball Skensala</h2>
             <p>Yang penting tuh absen, Bukan bayar kas</p>
+            <div class="current-day" id="currentDay"></div>
             <a href="#" class="btn btn-primary" id="attendanceBtn">Absen Sekarang</a>
         </div>
     </section>
@@ -539,47 +517,45 @@
                     </div>
                     <div class="form-group">
                         <label for="studentClass">Kelas</label>
-                        
-<select id="studentClass" class="form-control" required>
-  <option value="">Pilih Kelas</option>
-  <optgroup label="Kelas 10">
-    <option value="10 AKL 1">10 AKL 1</option>
-    <option value="10 AKL 2">10 AKL 2</option>
-    <option value="10 AKL 3">10 AKL 3</option>
-    <option value="10 AKL 4">10 AKL 4</option>
-    <option value="10 AKL 5">10 AKL 5</option>
-    <option value="10 MPLB 1">10 MPLB 1</option>
-    <option value="10 MPLB 2">10 MPLB 2</option>
-    <option value="10 MPLB 3">10 MPLB 3</option>
-    <option value="10 MPLB 4">10 MPLB 4</option>
-    <option value="10 BDP 1">10 BDP 1</option>
-    <option value="10 BDP 2">10 BDP 2</option>
-    <option value="10 BDP 3">10 BDP 3</option>
-    <option value="10 DKV 1">10 DKV 1</option>
-    <option value="10 DKV 2">10 DKV 2</option>
-    <option value="10 TJKT 1">10 TJKT 1</option>
-    <option value="10 TJKT 2">10 TJKT 2</option>
-  </optgroup>
-  <optgroup label="Kelas 11">
-    <option value="11 AKL 1">11 AKL 1</option>
-    <option value="11 AKL 2">11 AKL 2</option>
-    <option value="11 AKL 3">11 AKL 3</option>
-    <option value="11 AKL 4">11 AKL 4</option>
-    <option value="11 AKL 5">11 AKL 5</option>
-    <option value="11 MPLB 1">11 MPLB 1</option>
-    <option value="11 MPLB 2">11 MPLB 2</option>
-    <option value="11 MPLB 3">11 MPLB 3</option>
-    <option value="11 MPLB 4">11 MPLB 4</option>
-    <option value="11 BDP 1">11 BDP 1</option>
-    <option value="11 BDP 2">11 BDP 2</option>
-    <option value="11 BDP 3">11 BDP 3</option>
-    <option value="11 DKV 1">11 DKV 1</option>
-    <option value="11 DKV 2">11 DKV 2</option>
-    <option value="11 TJKT 1">11 TJKT 1</option>
-    <option value="11 TJKT 2">11 TJKT 2</option>
-  </optgroup>
-</select>
-
+                        <select id="studentClass" class="form-control" required>
+                          <option value="">Pilih Kelas</option>
+                          <optgroup label="Kelas 10">
+                            <option value="10 AKL 1">10 AKL 1</option>
+                            <option value="10 AKL 2">10 AKL 2</option>
+                            <option value="10 AKL 3">10 AKL 3</option>
+                            <option value="10 AKL 4">10 AKL 4</option>
+                            <option value="10 AKL 5">10 AKL 5</option>
+                            <option value="10 MPLB 1">10 MPLB 1</option>
+                            <option value="10 MPLB 2">10 MPLB 2</option>
+                            <option value="10 MPLB 3">10 MPLB 3</option>
+                            <option value="10 MPLB 4">10 MPLB 4</option>
+                            <option value="10 BDP 1">10 BDP 1</option>
+                            <option value="10 BDP 2">10 BDP 2</option>
+                            <option value="10 BDP 3">10 BDP 3</option>
+                            <option value="10 DKV 1">10 DKV 1</option>
+                            <option value="10 DKV 2">10 DKV 2</option>
+                            <option value="10 TJKT 1">10 TJKT 1</option>
+                            <option value="10 TJKT 2">10 TJKT 2</option>
+                          </optgroup>
+                          <optgroup label="Kelas 11">
+                            <option value="11 AKL 1">11 AKL 1</option>
+                            <option value="11 AKL 2">11 AKL 2</option>
+                            <option value="11 AKL 3">11 AKL 3</option>
+                            <option value="11 AKL 4">11 AKL 4</option>
+                            <option value="11 AKL 5">11 AKL 5</option>
+                            <option value="11 MPLB 1">11 MPLB 1</option>
+                            <option value="11 MPLB 2">11 MPLB 2</option>
+                            <option value="11 MPLB 3">11 MPLB 3</option>
+                            <option value="11 MPLB 4">11 MPLB 4</option>
+                            <option value="11 BDP 1">11 BDP 1</option>
+                            <option value="11 BDP 2">11 BDP 2</option>
+                            <option value="11 BDP 3">11 BDP 3</option>
+                            <option value="11 DKV 1">11 DKV 1</option>
+                            <option value="11 DKV 2">11 DKV 2</option>
+                            <option value="11 TJKT 1">11 TJKT 1</option>
+                            <option value="11 TJKT 2">11 TJKT 2</option>
+                          </optgroup>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="extracurricular">Ekstrakurikuler</label>
@@ -619,6 +595,7 @@
                     <table id="attendanceTable">
                         <thead>
                             <tr>
+                                <th>No</th>
                                 <th>Nama</th>
                                 <th>Kelas</th>
                                 <th>Ekstrakurikuler</th>
@@ -690,11 +667,26 @@
         const debugPanel = document.getElementById('debugPanel');
         const debugContent = document.getElementById('debugContent');
         const toggleDebugBtn = document.getElementById('toggleDebug');
+        const currentDayEl = document.getElementById('currentDay');
 
         const totalStudentsEl = document.getElementById('totalStudents');
         const todayAttendanceEl = document.getElementById('todayAttendance');
         const attendanceRateEl = document.getElementById('attendanceRate');
         const activeSessionEl = document.getElementById('activeSession');
+
+        // Function to display current day in Indonesian
+        function displayCurrentDay() {
+            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            
+            const now = new Date();
+            const dayName = days[now.getDay()];
+            const date = now.getDate();
+            const monthName = months[now.getMonth()];
+            const year = now.getFullYear();
+            
+            currentDayEl.textContent = `${dayName}, ${date} ${monthName} ${year}`;
+        }
 
         function updateDebug(message) {
             console.log(message);
@@ -840,8 +832,8 @@
 
                 updateDebug(`📈 Today's attendance: ${todaySnapshot.size}`);
 
-                totalStudentsEl.textContent = "150";
-                attendanceRateEl.textContent = "90%";
+                totalStudentsEl.textContent = "70";
+                attendanceRateEl.textContent = "50%";
                 activeSessionEl.textContent = "15:00 - 17:00/17:30";
 
                 await loadAttendance();
@@ -864,19 +856,25 @@
             try {
                 updateDebug('📋 Loading attendance list...');
                 const attendanceRef = window.collection(window.db, 'attendance');
-                const q = window.query(attendanceRef, window.orderBy('recordedAt', 'desc'), window.limit(10));
+                const q = window.query(attendanceRef, window.orderBy('name'), window.limit(10));
                 const querySnapshot = await window.getDocs(q);
 
                 if (querySnapshot.empty) {
-                    attendanceList.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada data absensi</td></tr>';
+                    attendanceList.innerHTML = '<tr><td colspan="7" style="text-align:center;">Belum ada data absensi</td></tr>';
                     updateDebug('📋 No attendance records found');
                     return;
                 }
 
                 updateDebug(`📋 Loaded ${querySnapshot.size} attendance records`);
 
+                // Convert to array and add numbering
+                const records = [];
                 querySnapshot.forEach(doc => {
-                    const data = doc.data();
+                    records.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Display with numbering
+                records.forEach((data, index) => {
                     const row = document.createElement('tr');
 
                     let statusBadge = '';
@@ -886,16 +884,17 @@
                     else statusBadge = '<span class="badge badge-danger">Alpa</span>';
 
                     row.innerHTML = `
+                        <td>${index + 1}</td>
                         <td>${data.name}</td>
                         <td>${data.class || '-'}</td>
                         <td>${data.extracurricular}</td>
                         <td>${statusBadge}</td>
                         <td>${formatDate(data.date)}</td>
                         <td>
-                            <button class="btn" style="padding:5px 10px; font-size:0.8rem;" onclick="editAttendance('${doc.id}')">
+                            <button class="btn" style="padding:5px 10px; font-size:0.8rem;" onclick="editAttendance('${data.id}')">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn" style="padding:5px 10px; font-size:0.8rem;" onclick="deleteAttendance('${doc.id}')">
+                            <button class="btn" style="padding:5px 10px; font-size:0.8rem;" onclick="deleteAttendance('${data.id}')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>
@@ -938,8 +937,10 @@
             }
         };
 
+        // Initialize the app
         updateDebug('🚀 App initialized');
         checkFirebaseConnection();
+        displayCurrentDay(); // Display current day when page loads
         loadDashboardData();
     </script>
 </body>

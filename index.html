@@ -328,6 +328,29 @@
             color: var(--primary-color);
         }
 
+        /* Style untuk badge status */
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
         @media (max-width: 992px) {
             .dashboard {
                 grid-template-columns: 1fr;
@@ -631,6 +654,7 @@
             where,
             orderBy,
             limit,
+            startAfter,
             serverTimestamp
         } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 
@@ -656,6 +680,7 @@
         window.where = where;
         window.orderBy = orderBy;
         window.limit = limit;
+        window.startAfter = startAfter;
         window.serverTimestamp = serverTimestamp;
 
         const today = new Date().toISOString().split('T')[0];
@@ -675,6 +700,11 @@
         const todayAttendanceEl = document.getElementById('todayAttendance');
         const attendanceRateEl = document.getElementById('attendanceRate');
         const activeSessionEl = document.getElementById('activeSession');
+
+        // Variabel untuk pagination
+        let lastVisible = null;
+        const pageSize = 20; // Jumlah data per halaman
+        let allRecordsLoaded = false;
 
         // Function to display current day in Indonesian
         function displayCurrentDay() {
@@ -838,7 +868,7 @@
 
                 updateDebug(`📈 Today's attendance: ${todaySnapshot.size}`);
 
-                totalStudentsEl.textContent = "56";
+                totalStudentsEl.textContent = "70";
                 attendanceRateEl.textContent = "40%";
                 activeSessionEl.textContent = "15:00 - 17:00/17:30";
 
@@ -853,25 +883,52 @@
             }
         }
 
-        async function loadAttendance() {
+        async function loadAttendance(loadMore = false) {
             if (!checkFirebaseConnection()) return;
 
             const attendanceList = document.getElementById('attendanceList');
-            attendanceList.innerHTML = '';
+            
+            // Jika bukan load more, reset data
+            if (!loadMore) {
+                attendanceList.innerHTML = '';
+                lastVisible = null;
+                allRecordsLoaded = false;
+            }
 
+            showLoader();
             try {
                 updateDebug('📋 Loading attendance list...');
                 const attendanceRef = window.collection(window.db, 'attendance');
-                const q = window.query(attendanceRef, window.orderBy('name'), window.limit(10));
+                
+                let q;
+                if (lastVisible) {
+                    q = window.query(
+                        attendanceRef,
+                        window.orderBy('name'),
+                        window.startAfter(lastVisible),
+                        window.limit(pageSize)
+                    );
+                } else {
+                    q = window.query(
+                        attendanceRef,
+                        window.orderBy('name'),
+                        window.limit(pageSize)
+                    );
+                }
+
                 const querySnapshot = await window.getDocs(q);
 
                 if (querySnapshot.empty) {
-                    attendanceList.innerHTML = '<tr><td colspan="7" style="text-align:center;">Belum ada data absensi</td></tr>';
-                    updateDebug('📋 No attendance records found');
+                    if (!loadMore) {
+                        attendanceList.innerHTML = '<tr><td colspan="7" style="text-align:center;">Belum ada data absensi</td></tr>';
+                    }
+                    allRecordsLoaded = true;
+                    updateDebug('📋 No more attendance records found');
                     return;
                 }
 
                 updateDebug(`📋 Loaded ${querySnapshot.size} attendance records`);
+                lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
 
                 // Convert to array and add numbering
                 const records = [];
@@ -890,7 +947,7 @@
                     else statusBadge = '<span class="badge badge-danger">Alpa</span>';
 
                     row.innerHTML = `
-                        <td>${index + 1}</td>
+                        <td>${attendanceList.children.length + 1}</td>
                         <td>${data.name}</td>
                         <td>${data.class || '-'}</td>
                         <td>${data.extracurricular}</td>
@@ -908,12 +965,35 @@
 
                     attendanceList.appendChild(row);
                 });
+
+                // Tambahkan tombol "Load More" jika masih ada data
+                if (!allRecordsLoaded && querySnapshot.size === pageSize) {
+                    const loadMoreRow = document.createElement('tr');
+                    loadMoreRow.id = 'loadMoreRow';
+                    loadMoreRow.innerHTML = `
+                        <td colspan="7" style="text-align:center;">
+                            <button class="btn btn-primary" onclick="loadMoreAttendance()" style="margin:10px 0;">
+                                <i class="fas fa-plus"></i> Muat Lebih Banyak
+                            </button>
+                        </td>
+                    `;
+                    attendanceList.appendChild(loadMoreRow);
+                } else if (document.getElementById('loadMoreRow')) {
+                    document.getElementById('loadMoreRow').remove();
+                }
+
             } catch (error) {
                 console.error("Error loading attendance: ", error);
                 updateDebug(`❌ Error loading attendance: ${error.message}`);
                 showToast(`Gagal memuat daftar absensi: ${error.message}`, 'error');
+            } finally {
+                hideLoader();
             }
         }
+
+        window.loadMoreAttendance = function() {
+            loadAttendance(true);
+        };
 
         window.editAttendance = async function(id) {
             showToast('Fitur edit akan diimplementasikan', 'info', 2000);

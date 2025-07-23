@@ -803,10 +803,8 @@
         const pageSize = 10; // Jumlah data per halaman
         let allRecordsLoaded10 = false;
         let allRecordsLoaded11 = false;
-        let currentPage10 = 0;
-        let currentPage11 = 0;
-        let totalRecords10 = 0;
-        let totalRecords11 = 0;
+        let totalDisplayedRecords10 = 0; // Counter untuk total record yang ditampilkan Kelas 10
+        let totalDisplayedRecords11 = 0; // Counter untuk total record yang ditampilkan Kelas 11
 
         // Function to display current day in Indonesian
         function displayCurrentDay() {
@@ -847,11 +845,9 @@
             }
         }
 
-        function updatePaginationInfo(classNumber, currentPage, totalRecords, pageSize) {
+        function updatePaginationInfo(classNumber, totalRecords, loadedRecords) {
             const paginationInfo = document.getElementById(`paginationInfo${classNumber}`);
-            const startRecord = (currentPage * pageSize) + 1;
-            const endRecord = Math.min((currentPage + 1) * pageSize, totalRecords);
-            paginationInfo.textContent = `Menampilkan ${startRecord}-${endRecord} dari ${totalRecords} data`;
+            paginationInfo.textContent = `Menampilkan ${loadedRecords} data`;
         }
 
         toggleDebugBtn.addEventListener('click', e => {
@@ -1008,10 +1004,8 @@
                 lastVisible11 = null;
                 allRecordsLoaded10 = false;
                 allRecordsLoaded11 = false;
-                currentPage10 = 0;
-                currentPage11 = 0;
-                totalRecords10 = 0;
-                totalRecords11 = 0;
+                totalDisplayedRecords10 = 0; // Reset counter
+                totalDisplayedRecords11 = 0; // Reset counter
             }
 
             showLoader();
@@ -1070,7 +1064,8 @@
                         // Display dengan penomoran yang benar
                         records10.forEach((data, index) => {
                             const row = document.createElement('tr');
-                            const rowNumber = (currentPage10 * pageSize) + attendanceList10.children.length + 1;
+                            totalDisplayedRecords10++; // Increment counter
+                            const rowNumber = totalDisplayedRecords10;
 
                             let statusBadge = '';
                             if (data.status === 'Hadir') statusBadge = '<span class="badge badge-success">Hadir</span>';
@@ -1098,7 +1093,6 @@
                             attendanceList10.appendChild(row);
                         });
 
-                        totalRecords10 += records10.length;
                         if (querySnapshot10.size < pageSize) {
                             allRecordsLoaded10 = true;
                             loadMore10Btn.disabled = true;
@@ -1106,7 +1100,7 @@
                         }
                     }
 
-                    updatePaginationInfo(10, currentPage10, totalRecords10, pageSize);
+                    updatePaginationInfo(10, totalDisplayedRecords10, totalDisplayedRecords10);
                 }
 
                 // Load data untuk Kelas 11 dengan pengurutan berdasarkan nama (A-Z)
@@ -1161,7 +1155,8 @@
                         // Display dengan penomoran yang benar
                         records11.forEach((data, index) => {
                             const row = document.createElement('tr');
-                            const rowNumber = (currentPage11 * pageSize) + attendanceList11.children.length + 1;
+                            totalDisplayedRecords11++; // Increment counter
+                            const rowNumber = totalDisplayedRecords11;
 
                             let statusBadge = '';
                             if (data.status === 'Hadir') statusBadge = '<span class="badge badge-success">Hadir</span>';
@@ -1189,7 +1184,6 @@
                             attendanceList11.appendChild(row);
                         });
 
-                        totalRecords11 += records11.length;
                         if (querySnapshot11.size < pageSize) {
                             allRecordsLoaded11 = true;
                             loadMore11Btn.disabled = true;
@@ -1197,7 +1191,7 @@
                         }
                     }
 
-                    updatePaginationInfo(11, currentPage11, totalRecords11, pageSize);
+                    updatePaginationInfo(11, totalDisplayedRecords11, totalDisplayedRecords11);
                 }
 
             } catch (error) {
@@ -1210,11 +1204,6 @@
         }
 
         window.loadMoreAttendance = function(classNumber) {
-            if (classNumber === 10) {
-                currentPage10++;
-            } else if (classNumber === 11) {
-                currentPage11++;
-            }
             loadAttendance(true);
         };
 
@@ -1254,4 +1243,3 @@
     </script>
 </body>
 </html>
-
